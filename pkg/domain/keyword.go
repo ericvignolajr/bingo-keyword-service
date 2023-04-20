@@ -18,3 +18,12 @@ type Keyword struct {
 type Translation struct {
 	Name, Definition string
 }
+
+func NewKeyword(name, defintion string) (*Keyword, error) {
+	return &Keyword{
+		Id:          uuid.New(),
+		Name:        name,
+		Definition:  defintion,
+		TranslateTo: map[string]Translation{},
+	}, nil
+}
