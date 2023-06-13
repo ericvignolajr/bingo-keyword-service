@@ -17,7 +17,6 @@ type CreateSubjectResponse struct {
 }
 
 func CreateSubject(req CreateSubjectRequest, userStore stores.User, subjectStore stores.Subject) CreateSubjectResponse {
-	// get user from id
 	user, err := userStore.ReadById(req.UserId)
 	if err != nil {
 		return CreateSubjectResponse{
@@ -25,7 +24,7 @@ func CreateSubject(req CreateSubjectRequest, userStore stores.User, subjectStore
 			err,
 		}
 	}
-	// create subject from name
+
 	subject, err := domain.NewSubject(req.SubjectName)
 	if err != nil {
 		return CreateSubjectResponse{
@@ -42,7 +41,6 @@ func CreateSubject(req CreateSubjectRequest, userStore stores.User, subjectStore
 		}
 	}
 
-	// return result on success or error
 	return CreateSubjectResponse{
 		true,
 		nil,
