@@ -1,6 +1,7 @@
 package inmemory
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/domain"
@@ -8,20 +9,34 @@ import (
 )
 
 type SubjectStore struct {
-	Store map[uuid.UUID][]domain.Subject
+	Store map[uuid.UUID][]*domain.Subject
 }
 
 func NewSubjectStore() *SubjectStore {
-	store := make(map[uuid.UUID][]domain.Subject)
+	store := make(map[uuid.UUID][]*domain.Subject)
 	return &SubjectStore{
 		Store: store,
 	}
 }
 
+func (s *SubjectStore) Read(UserID uuid.UUID) ([]*domain.Subject, error) {
+	subjects, ok := s.Store[UserID]
+	if !ok {
+		return nil, errors.New("user does not exist or has not created any subjects")
+	}
+
+	subjectPointers := make([]*domain.Subject, len(subjects))
+	for i := range subjects {
+		subjectPointers[i] = subjects[i]
+	}
+
+	return subjectPointers, nil
+}
+
 func (s *SubjectStore) ReadByName(UserId uuid.UUID, SubjectName string) (*domain.Subject, error) {
 	for _, v := range s.Store[UserId] {
 		if v.Name == SubjectName {
-			return &v, nil
+			return v, nil
 		}
 	}
 
@@ -36,9 +51,9 @@ func (s *SubjectStore) Create(UserId uuid.UUID, Subject *domain.Subject) (*domai
 
 	subjects, ok := s.Store[UserId]
 	if !ok {
-		s.Store[UserId] = []domain.Subject{*Subject}
+		s.Store[UserId] = []*domain.Subject{Subject}
 	} else {
-		subjects = append(subjects, *Subject)
+		s.Store[UserId] = append(subjects, Subject)
 	}
 
 	return Subject, nil
