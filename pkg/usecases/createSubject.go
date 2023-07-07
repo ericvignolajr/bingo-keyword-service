@@ -16,10 +16,17 @@ type CreateSubjectResponse struct {
 	Err error
 }
 
-func CreateSubject(req CreateSubjectRequest, userStore stores.User, subjectStore stores.Subject) CreateSubjectResponse {
-	user, err := userStore.ReadById(req.UserId)
+type CreateSubject struct {
+	UserStore    stores.User
+	SubjectStore stores.Subject
+	Presenter    CreateSubjectPresenter
+}
+
+func (c *CreateSubject) Exec(req CreateSubjectRequest) CreateSubjectResponse {
+	var result CreateSubjectResponse
+	user, err := c.UserStore.ReadById(req.UserId)
 	if err != nil {
-		return CreateSubjectResponse{
+		result = CreateSubjectResponse{
 			false,
 			err,
 		}
@@ -27,22 +34,25 @@ func CreateSubject(req CreateSubjectRequest, userStore stores.User, subjectStore
 
 	subject, err := domain.NewSubject(req.SubjectName)
 	if err != nil {
-		return CreateSubjectResponse{
+		result = CreateSubjectResponse{
 			false,
 			err,
 		}
 	}
 
-	_, err = subjectStore.Create(user.Id, subject)
+	_, err = c.SubjectStore.Create(user.Id, subject)
 	if err != nil {
-		return CreateSubjectResponse{
+		result = CreateSubjectResponse{
 			false,
 			err,
 		}
 	}
 
-	return CreateSubjectResponse{
+	result = CreateSubjectResponse{
 		true,
 		nil,
 	}
+
+	c.Presenter.PresentCreateSubject(result)
+	return result
 }

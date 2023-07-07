@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/domain"
+	outputports "github.com/ericvignolajr/bingo-keyword-service/pkg/output_ports"
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/stores/inmemory"
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/usecases"
 	"github.com/stretchr/testify/assert"
@@ -15,12 +16,20 @@ func TestCreateSubject(t *testing.T) {
 
 	subjectStore := inmemory.NewSubjectStore()
 
+	mockPresenter := outputports.MockPresenter{}
+
 	req := usecases.CreateSubjectRequest{
 		UserId:      uid,
 		SubjectName: "Science",
 	}
 
-	res := usecases.CreateSubject(req, &userStore, subjectStore)
+	createSubject := &usecases.CreateSubject{
+		UserStore:    &userStore,
+		SubjectStore: subjectStore,
+		Presenter:    &mockPresenter,
+	}
+
+	res := createSubject.Exec(req)
 
 	assert.Equal(t, true, res.Ok)
 }
