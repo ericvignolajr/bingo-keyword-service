@@ -16,17 +16,26 @@ type ReadSubjectResponse struct {
 	Err     error
 }
 
-func ReadSubject(req ReadSubjectRequest, subjectStore stores.Subject) ReadSubjectResponse {
-	subject, err := subjectStore.ReadByName(req.UserId, req.SubjectName)
+type ReadSubject struct {
+	SubjectStore stores.Subject
+	Presenter    ReadSubjectPresenter
+}
+
+func (r *ReadSubject) Exec(req ReadSubjectRequest) ReadSubjectResponse {
+	var result ReadSubjectResponse
+	subject, err := r.SubjectStore.ReadByName(req.UserId, req.SubjectName)
 	if err != nil {
-		return ReadSubjectResponse{
+		result = ReadSubjectResponse{
 			nil,
 			err,
 		}
 	}
 
-	return ReadSubjectResponse{
+	result = ReadSubjectResponse{
 		subject,
 		nil,
 	}
+
+	r.Presenter.PresentReadSubject(result)
+	return result
 }

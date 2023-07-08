@@ -33,7 +33,11 @@ func TestReadSubject(t *testing.T) {
 		createReq.SubjectName,
 	}
 
-	readRes := usecases.ReadSubject(readReq, subjectStore)
+	readSubject := usecases.ReadSubject{
+		SubjectStore: subjectStore,
+		Presenter:    &mockPresenter,
+	}
+	readRes := readSubject.Exec(readReq)
 	if readRes.Err != nil {
 		t.Error(readRes.Err)
 	}
