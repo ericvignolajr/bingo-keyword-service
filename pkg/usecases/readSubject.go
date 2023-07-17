@@ -16,6 +16,10 @@ type ReadSubjectResponse struct {
 	Err     error
 }
 
+type ReadSubjectPresenter interface {
+	PresentReadSubject(ReadSubjectResponse) error
+}
+
 type ReadSubject struct {
 	SubjectStore stores.Subject
 	Presenter    ReadSubjectPresenter

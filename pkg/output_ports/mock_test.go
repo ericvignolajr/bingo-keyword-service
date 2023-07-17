@@ -6,10 +6,11 @@ import (
 	outputports "github.com/ericvignolajr/bingo-keyword-service/pkg/output_ports"
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/stores/inmemory"
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/usecases"
+	"github.com/ericvignolajr/bingo-keyword-service/pkg/viewers"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestPresentReadSubject(t *testing.T) {
+func TestPresentReadSubjectMock(t *testing.T) {
 	userStore := inmemory.UserStore{}
 	uid, err := userStore.Create("stephv@com.invalid", "fakepassword")
 	if err != nil {
@@ -17,7 +18,10 @@ func TestPresentReadSubject(t *testing.T) {
 	}
 
 	subjectStore := inmemory.NewSubjectStore()
-	mockPresenter := outputports.MockPresenter{}
+	mockViewer := viewers.MockViewer{}
+	mockPresenter := outputports.MockPresenter{
+		Viewer: &mockViewer,
+	}
 	readSubject := usecases.ReadSubject{
 		SubjectStore: subjectStore,
 		Presenter:    &mockPresenter,
@@ -42,9 +46,12 @@ func TestPresentReadSubject(t *testing.T) {
 		t.Error(res.Err)
 	}
 
-	actual := mockPresenter.PresentReadSubject(res)
-	expected := usecases.ReadSubjectViewModel{
-		Id:   res.Subject.Id.String(),
+	actual := mockViewer.View(outputports.MockViewModel{
+		ID:   res.Subject.Id.String(),
+		Name: "Science",
+	})
+	expected := outputports.MockViewModel{
+		ID:   res.Subject.Id.String(),
 		Name: "Science",
 	}
 

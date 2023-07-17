@@ -16,6 +16,10 @@ type CreateSubjectResponse struct {
 	Err error
 }
 
+type CreateSubjectPresenter interface {
+	PresentCreateSubject(CreateSubjectResponse)
+}
+
 type CreateSubject struct {
 	UserStore    stores.User
 	SubjectStore stores.Subject

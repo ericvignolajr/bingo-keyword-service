@@ -6,6 +6,7 @@ import (
 	outputports "github.com/ericvignolajr/bingo-keyword-service/pkg/output_ports"
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/stores/inmemory"
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/usecases"
+	"github.com/ericvignolajr/bingo-keyword-service/pkg/viewers"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -19,7 +20,10 @@ func TestReadSubject(t *testing.T) {
 		"Science",
 	}
 
-	mockPresenter := outputports.MockPresenter{}
+	mockViewer := viewers.MockViewer{}
+	mockPresenter := outputports.MockPresenter{
+		Viewer: &mockViewer,
+	}
 
 	createSubjectUsecase := usecases.CreateSubject{
 		UserStore:    &userStore,
