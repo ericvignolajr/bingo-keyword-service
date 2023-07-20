@@ -7,7 +7,9 @@ import (
 	outputports "github.com/ericvignolajr/bingo-keyword-service/pkg/output_ports"
 )
 
-type WebViewer struct{}
+type WebViewer struct {
+	view string
+}
 
 func (w *WebViewer) ViewReadSubject(viewModel outputports.WebViewModel) (string, error) {
 	b := bytes.Buffer{}
@@ -21,5 +23,10 @@ func (w *WebViewer) ViewReadSubject(viewModel outputports.WebViewModel) (string,
 		return "", err
 	}
 
-	return b.String(), err
+	w.view = b.String()
+	return w.view, err
+}
+
+func (w *WebViewer) View() string {
+	return w.view
 }
