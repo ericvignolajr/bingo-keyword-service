@@ -1,7 +1,7 @@
 package delivery
 
 import (
-	"io"
+	"fmt"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -11,14 +11,10 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/google/uuid"
-	"github.com/lestrrat-go/jwx/jws"
+	"github.com/lestrrat-go/jwx/jwt"
 )
 
-type arbitraryJSON struct {
-	data interface{}
-}
-
-func NewHttpServer(rs usecases.ReadSubject, rv *viewers.WebViewer) chi.Router {
+func NewHttpServer(rs usecases.ReadSubject, signIn usecases.Signin, rv *viewers.WebViewer) chi.Router {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.SetHeader("X-Frame-Options", "DENY"))
@@ -31,28 +27,41 @@ func NewHttpServer(rs usecases.ReadSubject, rv *viewers.WebViewer) chi.Router {
 			}
 			path := filepath.Join(wd, "/pkg", "/delivery", "/signin.html")
 
-			f, err := os.Open(path)
-			if err != nil {
-				w.WriteHeader(http.StatusInternalServerError)
-			}
-			io.Copy(w, f)
+			http.ServeFile(w, r, path)
 		})
-		r.Post("/", func(w http.ResponseWriter, r *http.Request) {
-			err := r.ParseForm()
+		r.Post("/with-google", func(w http.ResponseWriter, r *http.Request) {
+			// verify the id token (jwt) from google here
+			token, err := jwt.ParseRequest(r, jwt.WithFormKey("credential"))
 			if err != nil {
-				w.WriteHeader(http.StatusInternalServerError)
+				fmt.Println(err)
+				w.WriteHeader(http.StatusUnauthorized)
 			}
-			str, ok := r.PostForm["credential"]
-			if !ok {
-				w.WriteHeader(http.StatusBadRequest)
-			}
-			src := str[0]
-			token, _ := jws.Parse([]byte(src))
 			w.Header().Set("Content-Type", "application/json")
-			w.Write(token.Payload())
+			w.Write([]byte(token.Subject() + "\n"))
+			claim, ok := token.Get("email")
+			if ok {
+				email, ok := claim.(string)
+				if ok {
+					w.Write([]byte(email + "\n"))
+				}
+			} else {
+				w.Write([]byte("Email Unknown" + "\n"))
+			}
+			w.Write([]byte(token.Issuer() + "\n"))
+			w.Write([]byte(token.IssuedAt().String() + "\n"))
+			w.Write([]byte(token.Expiration().String() + "\n"))
+
+			// build and sign a jwt here for storing via cookie on client
+			// c := http.Cookie{
+			// 	Name:     "cred",
+			// 	HttpOnly: true,
+			// 	Secure:   true,
+			// 	SameSite: http.SameSiteLaxMode,
+			// 	Value:    "new cookie",
+			// }
+			// http.SetCookie(w, &c)
 		})
 	})
-
 	r.Route("/subjects", func(r chi.Router) {
 		r.Put("/", func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusNotImplemented)

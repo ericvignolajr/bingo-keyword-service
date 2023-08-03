@@ -20,9 +20,6 @@ func NewUser(email, password string) (*User, error) {
 		return nil, err
 	}
 
-	if err != nil {
-		return nil, err
-	}
 	return &User{
 		Id:       uuid.New(),
 		Email:    e.Address,

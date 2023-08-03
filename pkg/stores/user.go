@@ -7,4 +7,5 @@ import (
 
 type User interface {
 	ReadById(uuid.UUID) (*domain.User, error)
+	ReadByEmail(string) (bool, error)
 }

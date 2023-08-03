@@ -21,6 +21,15 @@ func (u *UserStore) ReadById(id uuid.UUID) (*domain.User, error) {
 
 	return nil, fmt.Errorf("user %s could not be found", id)
 }
+func (u *UserStore) ReadByEmail(e string) (bool, error) {
+	for _, v := range u.store {
+		if v.Email == e {
+			return true, nil
+		}
+	}
+
+	return false, fmt.Errorf("user with email %s could not be found", e)
+}
 
 func (u *UserStore) Create(email string, password string) (uuid.UUID, error) {
 	hashedP, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)

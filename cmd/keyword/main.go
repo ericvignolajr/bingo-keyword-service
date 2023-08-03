@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/delivery"
@@ -13,15 +12,7 @@ import (
 
 func main() {
 	ustore := inmemory.UserStore{}
-	uid, _ := ustore.Create("foo@example.com", "supersecret")
-	fmt.Println(uid)
 	sstore := inmemory.NewSubjectStore()
-	c := usecases.CreateSubject{
-		UserStore:    &ustore,
-		SubjectStore: sstore,
-		Presenter:    &outputports.MockPresenter{&viewers.MockViewer{}},
-	}
-	c.Exec(usecases.CreateSubjectRequest{uid, "Science"})
 
 	v := viewers.WebViewer{}
 	p := outputports.WebPresenter{
@@ -31,6 +22,9 @@ func main() {
 		SubjectStore: sstore,
 		Presenter:    &p,
 	}
-	s := delivery.NewHttpServer(u, &v)
+	signIn := usecases.Signin{
+		UserStore: ustore,
+	}
+	s := delivery.NewHttpServer(u, signIn, &v)
 	http.ListenAndServe(":8080", s)
 }

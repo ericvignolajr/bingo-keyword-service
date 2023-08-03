@@ -1,15 +1,22 @@
 package viewers
 
-import "fmt"
+import (
+	"fmt"
 
-type MockViewer struct{}
+	outputports "github.com/ericvignolajr/bingo-keyword-service/pkg/output_ports"
+)
 
-func (*MockViewer) ViewMock(viewModel interface{}) interface{} {
+type MockViewer struct {
+	view outputports.MockViewModel
+}
+
+func (m *MockViewer) ViewMock(viewModel interface{}) interface{} {
 	fmt.Println(viewModel)
+	m.view = viewModel.(outputports.MockViewModel)
 	return nil
 }
 
-func (*MockViewer) View(viewModel interface{}) interface{} {
+func (m *MockViewer) View(viewModel interface{}) interface{} {
 	fmt.Println(viewModel)
-	return nil
+	return m.view
 }
