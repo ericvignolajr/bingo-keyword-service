@@ -5,7 +5,6 @@ import (
 	"net/http/cookiejar"
 	"net/http/httptest"
 	"net/url"
-	"os"
 	"testing"
 	"time"
 
@@ -31,19 +30,19 @@ func TestValidateGcsrf(t *testing.T) {
 			expected: http.StatusForbidden,
 		},
 	}
+	cj, _ := cookiejar.New(nil)
 	c := &http.Client{
 		Timeout: 30 * time.Second,
+		Jar:     cj,
 	}
-	url := &url.URL{
-		Host: os.Getenv("SERVER_URL"),
-		Path: "/",
-	}
+	testURL, _ := url.Parse("http://localhost")
+
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			c.Jar.SetCookies(url, tc.cookies)
+			c.Jar.SetCookies(testURL, tc.cookies)
 			f := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
 			h := validateGcsrf(f)
-			r := httptest.NewRequest(tc.method, url.String(), nil)
+			r := httptest.NewRequest(tc.method, testURL.String(), nil)
 			rr := httptest.NewRecorder()
 			h.ServeHTTP(rr, r)
 
