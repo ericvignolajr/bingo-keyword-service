@@ -80,8 +80,8 @@ func (g *GoogleAuthenticator) expectedIssuer(t jwt.Token) (bool, error) {
 	fmt.Println("expectedIssuer...")
 	issErr1 := jwt.Validate(t, jwt.WithIssuer(gissname1))
 	issErr2 := jwt.Validate(t, jwt.WithIssuer(gissname2))
-	if issErr1 != nil && issErr2 != nil {
-		return false, fmt.Errorf("in issuer check: %w | %w", issErr1, issErr2)
+	if issErr1 != nil || issErr2 != nil {
+		return false, fmt.Errorf("in issuer check: %s | %s", issErr1, issErr2)
 	}
 
 	return true, nil
