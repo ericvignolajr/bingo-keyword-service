@@ -1,3 +1,6 @@
+run:
+	go run cmd/keyword/main.go
+
 test: 
 	go test -v ./...
 
@@ -7,4 +10,4 @@ build:
 clean: 
 	rm -rf cmd/keyword/bin
 
-.PHONY: test clean
+.PHONY: run test clean

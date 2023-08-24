@@ -1,26 +1,38 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <title>signin</title>
-    <meta name="referrer" content="origin" />
-    <script src="https://accounts.google.com/gsi/client" async></script>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SignIn</title>
 </head>
     <body>
-        <div id="g_id_onload"
-            data-client_id="987971639793-n2adesr00a73mp5rj9p2req3qrdscrtc.apps.googleusercontent.com"
-            data-context="signin"
-            data-ux_mode="redirect"
-            data-login_uri="http://localhost:8080/signin/with-google"
-            data-auto_prompt="false">
-        </div>
 
-        <div class="g_id_signin"
-            data-type="standard"
-            data-shape="pill"
-            data-theme="filled_black"
-            data-text="signin_with"
-            data-size="large"
-            data-logo_alignment="left">
-        </div>
-    </body>
+        <div id="sign-in"></div>
+        <div id="user-button"></div>
+        <script>
+            // Get this URL and Publishable Key from the Clerk Dashboard
+            const clerkFrontendApi = 'pk_test_Y3VubmluZy1jaGlnZ2VyLTMzLmNsZXJrLmFjY291bnRzLmRldiQ';
+            const frontendApi = 'cunning-chigger-33.clerk.accounts.dev';
+            const version = '@latest'; // Set to appropriate version
+           
+            // Creates asynchronous script
+            const script = document.createElement('script');
+            script.setAttribute('data-clerk-frontend-api', frontendApi);
+            script.setAttribute('data-clerk-publishable-key', clerkFrontendApi);
+            script.async = true;
+            script.src = `https://${frontendApi}/npm/@clerk/clerk-js${version}/dist/clerk.browser.js`;
+           
+            // Adds listener to initialize ClerkJS after it's loaded
+            script.addEventListener('load', async function () {
+                await window.Clerk.load({});
+
+                
+                window.Clerk.mountSignIn(document.querySelector("#sign-in"))
+            });
+
+
+            document.body.appendChild(script);
+          </script>
+    <body>
 </html>
