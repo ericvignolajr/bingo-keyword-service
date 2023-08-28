@@ -21,14 +21,14 @@ func (u *UserStore) ReadById(id uuid.UUID) (*domain.User, error) {
 
 	return nil, fmt.Errorf("user %s could not be found", id)
 }
-func (u *UserStore) ReadByEmail(e string) (bool, error) {
+func (u *UserStore) ReadByEmail(e string) (*domain.User, error) {
 	for _, v := range u.store {
 		if v.Email == e {
-			return true, nil
+			return &v, nil
 		}
 	}
 
-	return false, fmt.Errorf("user with email %s could not be found", e)
+	return nil, nil
 }
 
 func (u *UserStore) Create(email string, password string) (uuid.UUID, error) {
@@ -40,4 +40,14 @@ func (u *UserStore) Create(email string, password string) (uuid.UUID, error) {
 	u.store = append(u.store, *user)
 
 	return user.Id, nil
+}
+
+func (u *UserStore) CreateAccount(email string) error {
+	user, err := domain.NewUser(email, "")
+	if err != nil {
+		return err
+	}
+
+	u.store = append(u.store, *user)
+	return nil
 }

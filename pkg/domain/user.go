@@ -8,10 +8,11 @@ import (
 )
 
 type User struct {
-	Id       uuid.UUID
-	Email    string
-	Password string
-	Subjects []*Subject
+	Id          uuid.UUID
+	ExternalIDs []string
+	Email       string
+	Password    string
+	Subjects    []*Subject
 }
 
 func NewUser(email, password string) (*User, error) {
@@ -21,10 +22,11 @@ func NewUser(email, password string) (*User, error) {
 	}
 
 	return &User{
-		Id:       uuid.New(),
-		Email:    e.Address,
-		Password: password,
-		Subjects: []*Subject{},
+		Id:          uuid.New(),
+		Email:       e.Address,
+		ExternalIDs: make([]string, 0),
+		Password:    password,
+		Subjects:    []*Subject{},
 	}, nil
 }
 
