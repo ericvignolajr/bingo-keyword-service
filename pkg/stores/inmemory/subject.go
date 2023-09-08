@@ -1,7 +1,6 @@
 package inmemory
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/domain"
@@ -22,7 +21,7 @@ func NewSubjectStore() *SubjectStore {
 func (s *SubjectStore) Read(UserID uuid.UUID) ([]*domain.Subject, error) {
 	subjects, ok := s.Store[UserID]
 	if !ok {
-		return nil, errors.New("user does not exist or has not created any subjects")
+		return nil, nil
 	}
 
 	subjectPointers := make([]*domain.Subject, len(subjects))

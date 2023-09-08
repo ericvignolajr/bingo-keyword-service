@@ -9,30 +9,33 @@
     <body>
 
         <div id="sign-in"></div>
-        <div id="user-button"></div>
+
         <script>
             // Get this URL and Publishable Key from the Clerk Dashboard
-            const clerkFrontendApi = 'pk_test_Y3VubmluZy1jaGlnZ2VyLTMzLmNsZXJrLmFjY291bnRzLmRldiQ';
-            const frontendApi = 'cunning-chigger-33.clerk.accounts.dev';
+            const clerkFrontendApi = 'pk_test_cGxlYXNpbmctaGFtc3Rlci02OC5jbGVyay5hY2NvdW50cy5kZXYk';
+            const frontendApi = 'pleasing-hamster-68.clerk.accounts.dev';
             const version = '@latest'; // Set to appropriate version
-           
+        
             // Creates asynchronous script
             const script = document.createElement('script');
             script.setAttribute('data-clerk-frontend-api', frontendApi);
             script.setAttribute('data-clerk-publishable-key', clerkFrontendApi);
             script.async = true;
             script.src = `https://${frontendApi}/npm/@clerk/clerk-js${version}/dist/clerk.browser.js`;
-           
+        
             // Adds listener to initialize ClerkJS after it's loaded
             script.addEventListener('load', async function () {
-                await window.Clerk.load({});
+                await window.Clerk.load({
+                    // Set load options here...
+                });
 
-                
-                window.Clerk.mountSignIn(document.querySelector("#sign-in"))
+                if(!window.Clerk.user) {
+                    window.Clerk.mountSignIn(document.querySelector("#sign-in"), {
+                        redirectUrl: "/user"
+                    })
+                }
             });
-
-
             document.body.appendChild(script);
-          </script>
+        </script>
     <body>
 </html>
