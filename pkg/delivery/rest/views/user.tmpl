@@ -1,6 +1,11 @@
 {{block "content" .}}
-    <h1>Hello {{.Email}} </h1>
-    <ul id="subjects">
-        No subjects, create one?
+    <h1>Hello {{.User.Email}} </h1>
+    <ul id="subjects" class="list-group">
+        {{range .Subjects}}
+            {{block "subject-element" .}}
+                <li class="list-group-item">{{.Name}}</li>
+            {{end}}
+        {{end}}
     </ul>
+    <button hx-get="/subject/create" hx-swap="outerHTML" class="btn btn-dark">Add Subject</button>
 {{end}}

@@ -16,7 +16,7 @@ const (
 	User
 )
 
-var userStore = inmemory.UserStore{}
+var UserStore = inmemory.UserStore{}
 
 func AddUserToContext(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -33,7 +33,7 @@ func AddUserToContext(h http.Handler) http.Handler {
 		u, _ := clerkAuth.Client.Users().Read(claims.Subject)
 		userEmail := u.EmailAddresses[0].EmailAddress
 
-		user, err := userStore.ReadByEmail(userEmail)
+		user, err := UserStore.ReadByEmail(userEmail)
 		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
 			w.Write([]byte("Unauthorized"))
@@ -41,7 +41,7 @@ func AddUserToContext(h http.Handler) http.Handler {
 			return
 		}
 		if user == nil {
-			uID, err := userStore.Create(userEmail, "")
+			uID, err := UserStore.Create(userEmail, "")
 			if err != nil {
 				w.WriteHeader(http.StatusUnauthorized)
 				w.Write([]byte("Unauthorized"))
@@ -49,7 +49,7 @@ func AddUserToContext(h http.Handler) http.Handler {
 				return
 			}
 
-			user, err = userStore.ReadById(uID)
+			user, err = UserStore.ReadById(uID)
 			if err != nil {
 				w.WriteHeader(http.StatusUnauthorized)
 				w.Write([]byte("Unauthorized"))

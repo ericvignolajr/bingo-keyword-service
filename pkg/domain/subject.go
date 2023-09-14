@@ -7,9 +7,10 @@ import (
 )
 
 type Subject struct {
-	Id    uuid.UUID
-	Name  string
-	Units []*Unit
+	Id      uuid.UUID
+	Name    string
+	Units   []*Unit
+	OwnerID uuid.UUID
 }
 
 func NewSubject(name string) (*Subject, error) {

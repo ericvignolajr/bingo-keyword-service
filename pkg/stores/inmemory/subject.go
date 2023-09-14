@@ -1,6 +1,7 @@
 package inmemory
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/domain"
@@ -42,10 +43,22 @@ func (s *SubjectStore) ReadByName(UserId uuid.UUID, SubjectName string) (*domain
 	return nil, fmt.Errorf("subject %s for user %s could not be found", SubjectName, UserId)
 }
 
+func (s *SubjectStore) ReadByID(subjectID uuid.UUID) (*domain.Subject, error) {
+	for _, user := range s.Store {
+		for _, subject := range user {
+			if subject.Id == subjectID {
+				return subject, nil
+			}
+		}
+	}
+
+	return nil, nil
+}
+
 func (s *SubjectStore) Create(UserId uuid.UUID, Subject *domain.Subject) (*domain.Subject, error) {
 	subjectToCreate, _ := s.ReadByName(UserId, Subject.Name)
 	if subjectToCreate != nil {
-		return subjectToCreate, nil
+		return subjectToCreate, errors.New("subject already exists")
 	}
 
 	subjects, ok := s.Store[UserId]

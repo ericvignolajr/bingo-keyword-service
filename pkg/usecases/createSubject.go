@@ -27,7 +27,11 @@ type CreateSubject struct {
 }
 
 func (c *CreateSubject) Exec(req CreateSubjectRequest) CreateSubjectResponse {
-	var result CreateSubjectResponse
+	result := CreateSubjectResponse{
+		true,
+		nil,
+	}
+
 	user, err := c.UserStore.ReadById(req.UserId)
 	if err != nil {
 		result = CreateSubjectResponse{
@@ -50,11 +54,6 @@ func (c *CreateSubject) Exec(req CreateSubjectRequest) CreateSubjectResponse {
 			false,
 			err,
 		}
-	}
-
-	result = CreateSubjectResponse{
-		true,
-		nil,
 	}
 
 	c.Presenter.PresentCreateSubject(result)

@@ -43,3 +43,12 @@ func (r *ReadSubject) Exec(req ReadSubjectRequest) ReadSubjectResponse {
 	r.Presenter.PresentReadSubject(result)
 	return result
 }
+
+type ReadSubjectByID struct {
+	SubjectStore stores.Subject
+}
+
+func (r *ReadSubjectByID) ReadSubjectByID(subjectID uuid.UUID) (*domain.Subject, error) {
+	s, err := r.SubjectStore.ReadByID(subjectID)
+	return s, err
+}
