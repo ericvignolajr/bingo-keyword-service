@@ -70,3 +70,32 @@ func (s *SubjectStore) Create(UserId uuid.UUID, Subject *domain.Subject) (*domai
 
 	return Subject, nil
 }
+
+func (s *SubjectStore) Delete(userID uuid.UUID, subjectID uuid.UUID) error {
+	var subjectSlice = s.Store[userID]
+	var nullIndex struct {
+		index int
+		found bool // found is true if the index was set
+	}
+	for idx, subject := range subjectSlice {
+		if subject.Id == subjectID {
+			nullIndex = struct {
+				index int
+				found bool
+			}{
+				index: idx,
+				found: true,
+			}
+		}
+	}
+
+	if nullIndex.found == false {
+		return nil
+	}
+
+	length := len(subjectSlice)
+	subjectSlice[nullIndex.index] = subjectSlice[length-1]
+	subjectSlice[length-1] = nil
+	s.Store[userID] = subjectSlice[:length-1]
+	return nil
+}
