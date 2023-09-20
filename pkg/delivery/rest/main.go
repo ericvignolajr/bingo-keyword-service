@@ -36,6 +36,10 @@ func NewServer() chi.Router {
 	viewsPath := filepath.Join(wd, "/pkg/delivery/rest/views")
 	subjectStore := inmemory.NewSubjectStore()
 
+	deleteSubject := usecases.DeleteSubject{
+		SubjectStore: subjectStore,
+	}
+
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/user", http.StatusFound)
 	})
@@ -178,6 +182,25 @@ func NewServer() chi.Router {
 		})
 		r.Put("/{subjectID}", func(w http.ResponseWriter, r *http.Request) {
 			fmt.Println(chi.URLParam(r, "subjectID"))
+		})
+		r.Delete("/{subjectID}", func(w http.ResponseWriter, r *http.Request) {
+			ctx := r.Context()
+			u, ok := ctx.Value(sessions.User).(*domain.User)
+			if !ok {
+				w.WriteHeader(http.StatusUnauthorized)
+				w.Write([]byte("Unauthorized"))
+				fmt.Println("No user on context")
+				return
+			}
+
+			subjectID, err := uuid.Parse(chi.URLParam(r, "subjectID"))
+			if err != nil {
+				w.WriteHeader(http.StatusBadRequest)
+			}
+			err = deleteSubject.Exec(u.Id, subjectID)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
 		})
 	})
 

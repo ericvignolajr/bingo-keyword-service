@@ -1,6 +1,8 @@
 package usecases
 
 import (
+	"sort"
+
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/stores"
 	"github.com/google/uuid"
 )
@@ -31,6 +33,10 @@ func ReadSubjects(req ReadSubjectsRequest, subjectStore stores.Subject) ReadSubj
 	for i, v := range subjects {
 		subjectOutput[i] = SubjectOutput{v.Id, v.Name}
 	}
+
+	sort.Slice(subjectOutput, func(i, j int) bool {
+		return subjectOutput[i].Name < subjectOutput[j].Name
+	})
 
 	return ReadSubjectsResponse{
 		subjectOutput,
