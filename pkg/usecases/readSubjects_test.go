@@ -17,13 +17,13 @@ func TestReadSubjects(t *testing.T) {
 	}
 
 	subjectStore := inmemory.NewSubjectStore()
-	s1, err := domain.NewSubject("Science")
+	s1, err := domain.NewSubject("Math")
 	if err != nil {
 		panic(err)
 	}
 	subjectStore.Create(uid, s1)
 
-	s2, err := domain.NewSubject("Math")
+	s2, err := domain.NewSubject("Science")
 	if err != nil {
 		panic(err)
 	}
