@@ -12,8 +12,9 @@ type CreateSubjectRequest struct {
 }
 
 type CreateSubjectResponse struct {
-	Ok  bool
-	Err error
+	SubjectID uuid.UUID
+	Ok        bool
+	Err       error
 }
 
 type CreateSubjectPresenter interface {
@@ -27,14 +28,12 @@ type CreateSubject struct {
 }
 
 func (c *CreateSubject) Exec(req CreateSubjectRequest) CreateSubjectResponse {
-	result := CreateSubjectResponse{
-		true,
-		nil,
-	}
+	var result CreateSubjectResponse
 
 	user, err := c.UserStore.ReadById(req.UserId)
 	if err != nil {
-		result = CreateSubjectResponse{
+		return CreateSubjectResponse{
+			uuid.Nil,
 			false,
 			err,
 		}
@@ -42,7 +41,8 @@ func (c *CreateSubject) Exec(req CreateSubjectRequest) CreateSubjectResponse {
 
 	subject, err := domain.NewSubject(req.SubjectName)
 	if err != nil {
-		result = CreateSubjectResponse{
+		return CreateSubjectResponse{
+			uuid.Nil,
 			false,
 			err,
 		}
@@ -50,12 +50,18 @@ func (c *CreateSubject) Exec(req CreateSubjectRequest) CreateSubjectResponse {
 
 	_, err = c.SubjectStore.Create(user.Id, subject)
 	if err != nil {
-		result = CreateSubjectResponse{
+		return CreateSubjectResponse{
+			uuid.Nil,
 			false,
 			err,
 		}
 	}
 
+	result = CreateSubjectResponse{
+		subject.Id,
+		true,
+		nil,
+	}
 	c.Presenter.PresentCreateSubject(result)
 	return result
 }

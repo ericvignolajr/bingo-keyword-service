@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"errors"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -35,6 +36,12 @@ func NewServer() chi.Router {
 	}
 	viewsPath := filepath.Join(wd, "/pkg/delivery/rest/views")
 	subjectStore := inmemory.NewSubjectStore()
+
+	createSubject := usecases.CreateSubject{
+		UserStore:    &sessions.UserStore,
+		SubjectStore: subjectStore,
+		Presenter:    &outputports.MockPresenter{},
+	}
 
 	deleteSubject := usecases.DeleteSubject{
 		SubjectStore: subjectStore,
@@ -109,37 +116,27 @@ func NewServer() chi.Router {
 
 			r.ParseForm()
 			s := r.PostFormValue("subjectName")
-			if s == "" {
-				w.WriteHeader(http.StatusBadRequest)
-				fmt.Println("subjectName is required to create a new subject")
-				return
-			}
-			subject, _ := domain.NewSubject(s)
 
-			createSubject := usecases.CreateSubject{
-				UserStore:    &sessions.UserStore,
-				SubjectStore: subjectStore,
-				Presenter:    &outputports.MockPresenter{},
-			}
-
+			errTmpl, _ := template.ParseFiles(viewsPath + "/createSubject.tmpl")
+			tmplData := new(struct {
+				ID     uuid.UUID
+				Name   string
+				Errors []error
+			})
 			req := usecases.CreateSubjectRequest{
 				UserId:      u.Id,
 				SubjectName: s,
 			}
 			res := createSubject.Exec(req)
-			data := new(struct {
-				ID   uuid.UUID
-				Name string
-			})
-			if res.Err != nil && res.Err.Error() == "subject already exists" {
-				data = nil
-			} else {
-				data.ID = subject.Id
-				data.Name = subject.Name
+			if res.Err != nil && res.Err.Error() == domain.ErrSubjectNameEmpty {
+				w.Header().Set("HX-Reswap", "outerHTML")
+				w.Header().Set("HX-Retarget", "#create-subject-form")
+				tmplData.Errors = append(tmplData.Errors, errors.New(domain.ErrSubjectNameEmpty))
+				errTmpl.Execute(w, tmplData)
+				return
 			}
 
-			tmpl, _ := template.ParseFiles(viewsPath + "/user.tmpl")
-			tmpl.ExecuteTemplate(w, "subject-element", data)
+			http.Redirect(w, r, "/user", http.StatusFound)
 		})
 		r.Get("/{subjectID}/edit", func(w http.ResponseWriter, r *http.Request) {
 			subjectID, err := uuid.Parse(chi.URLParam(r, "subjectID"))

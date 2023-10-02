@@ -3,9 +3,14 @@ package inmemory
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/domain"
 	"github.com/google/uuid"
+)
+
+const (
+	ErrSubjectExists = "subject already exists"
 )
 
 type SubjectStore struct {
@@ -35,7 +40,7 @@ func (s *SubjectStore) Read(UserID uuid.UUID) ([]*domain.Subject, error) {
 
 func (s *SubjectStore) ReadByName(UserId uuid.UUID, SubjectName string) (*domain.Subject, error) {
 	for _, v := range s.Store[UserId] {
-		if v.Name == SubjectName {
+		if strings.ToLower(v.Name) == strings.ToLower(SubjectName) {
 			return v, nil
 		}
 	}
@@ -58,7 +63,7 @@ func (s *SubjectStore) ReadByID(subjectID uuid.UUID) (*domain.Subject, error) {
 func (s *SubjectStore) Create(UserId uuid.UUID, Subject *domain.Subject) (*domain.Subject, error) {
 	subjectToCreate, _ := s.ReadByName(UserId, Subject.Name)
 	if subjectToCreate != nil {
-		return subjectToCreate, errors.New("subject already exists")
+		return subjectToCreate, errors.New(ErrSubjectExists)
 	}
 
 	subjects, ok := s.Store[UserId]

@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"sort"
+	"strings"
 
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/stores"
 	"github.com/google/uuid"
@@ -35,7 +36,7 @@ func ReadSubjects(req ReadSubjectsRequest, subjectStore stores.Subject) ReadSubj
 	}
 
 	sort.Slice(subjectOutput, func(i, j int) bool {
-		return subjectOutput[i].Name < subjectOutput[j].Name
+		return strings.ToLower(subjectOutput[i].Name) < strings.ToLower(subjectOutput[j].Name)
 	})
 
 	return ReadSubjectsResponse{

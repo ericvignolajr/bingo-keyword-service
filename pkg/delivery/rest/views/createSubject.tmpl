@@ -1,8 +1,13 @@
-<form id="create-subject-form" hx-post="/subject/create" hx-swap="beforeend" hx-target="#subjects">
+<form id="create-subject-form" hx-post="/subject/create" hx-swap="outerHTML" hx-target="body">
+    {{range .Errors}}
     <div>
-      <label>Subject Name</label>
-      <input type="text" name="subjectName">
+      <span class="error" style="color: red;">{{.Error}}</span>
     </div>
-    <button>Submit</button>
-    <button hx-get="/user" hx-target="body" hx-swap="outerHTML">Cancel</button>
+    {{end}}
+    <div class="form-group">
+      <label>Subject Name</label>
+      <input type="text" name="subjectName" class="form-control">
+    </div>
+    <button class="btn btn-outline-primary">Submit</button>
+    <button class="btn btn-outline-danger" hx-get="/user" hx-target="body" hx-swap="outerHTML">Cancel</button>
 </form>

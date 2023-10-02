@@ -1,19 +1,20 @@
-package domain
+package domain_test
 
 import (
 	"testing"
 
+	"github.com/ericvignolajr/bingo-keyword-service/pkg/domain"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestNewSubject(t *testing.T) {
-	expected := &Subject{
+	expected := &domain.Subject{
 		Id:   uuid.New(),
 		Name: "Science",
 	}
 
-	s, err := NewSubject("Science")
+	s, err := domain.NewSubject("Science")
 	if err != nil {
 		t.Error(err)
 	}
@@ -21,12 +22,20 @@ func TestNewSubject(t *testing.T) {
 	assert.Equal(t, expected.Name, s.Name)
 }
 
+func TestNewSubjectEmptyName(t *testing.T) {
+	s, err := domain.NewSubject("")
+	if s != nil {
+		t.Error()
+	}
+	assert.EqualError(t, err, domain.ErrSubjectNameEmpty)
+}
+
 func TestAddUnit(t *testing.T) {
-	u, err := NewUnit("Electromagnets")
+	u, err := domain.NewUnit("Electromagnets")
 	if err != nil {
 		t.Error(err)
 	}
-	s, err := NewSubject("Science")
+	s, err := domain.NewSubject("Science")
 	if err != nil {
 		t.Error(err)
 	}
@@ -41,15 +50,15 @@ func TestAddUnit(t *testing.T) {
 }
 
 func TestIsDuplicateUnit(t *testing.T) {
-	u1, err := NewUnit("Electromagnets")
+	u1, err := domain.NewUnit("Electromagnets")
 	if err != nil {
 		t.Error(err)
 	}
-	u2, err := NewUnit("Electromagnets")
+	u2, err := domain.NewUnit("Electromagnets")
 	if err != nil {
 		t.Error(err)
 	}
-	s, err := NewSubject("Science")
+	s, err := domain.NewSubject("Science")
 	if err != nil {
 		t.Error(err)
 	}

@@ -1,9 +1,15 @@
 package domain
 
 import (
+	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/google/uuid"
+)
+
+const (
+	ErrSubjectNameEmpty = "subject name is empty, cannot create subject"
 )
 
 type Subject struct {
@@ -14,9 +20,13 @@ type Subject struct {
 }
 
 func NewSubject(name string) (*Subject, error) {
+	if name == "" {
+		return nil, errors.New(ErrSubjectNameEmpty)
+	}
+	capitalizedName := strings.ToUpper(string(name[0])) + name[1:]
 	return &Subject{
 		Id:    uuid.New(),
-		Name:  name,
+		Name:  capitalizedName,
 		Units: []*Unit{},
 	}, nil
 }
@@ -33,7 +43,7 @@ func (s *Subject) AddUnit(u Unit) (*Unit, error) {
 
 func (s *Subject) IsDuplicateUnit(u Unit) bool {
 	for _, v := range s.Units {
-		if v.Name == u.Name {
+		if strings.ToLower(v.Name) == strings.ToLower(u.Name) {
 			return true
 		}
 	}
