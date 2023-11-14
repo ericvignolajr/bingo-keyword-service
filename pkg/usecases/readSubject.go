@@ -1,54 +1,51 @@
 package usecases
 
 import (
+	"fmt"
+
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/domain"
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/stores"
 	"github.com/google/uuid"
 )
-
-type ReadSubjectRequest struct {
-	UserId      uuid.UUID
-	SubjectName string
-}
 
 type ReadSubjectResponse struct {
 	Subject *domain.Subject
 	Err     error
 }
 
-type ReadSubjectPresenter interface {
-	PresentReadSubject(ReadSubjectResponse) error
-}
-
 type ReadSubject struct {
+	UserStore    stores.User
 	SubjectStore stores.Subject
-	Presenter    ReadSubjectPresenter
 }
 
-func (r *ReadSubject) Exec(req ReadSubjectRequest) ReadSubjectResponse {
-	var result ReadSubjectResponse
-	subject, err := r.SubjectStore.ReadByName(req.UserId, req.SubjectName)
+func (r *ReadSubject) Exec(name string, userID uuid.UUID) (*domain.Subject, error) {
+	user, err := r.UserStore.ReadById(userID)
 	if err != nil {
-		result = ReadSubjectResponse{
-			nil,
-			err,
-		}
+		return nil, fmt.Errorf("in readSubject: %w", err)
 	}
 
-	result = ReadSubjectResponse{
-		subject,
-		nil,
+	subject, err := user.FindSubjectByName(name)
+	if err != nil {
+		return nil, fmt.Errorf("in readSubject: %w", err)
 	}
 
-	r.Presenter.PresentReadSubject(result)
-	return result
+	return subject, nil
 }
 
 type ReadSubjectByID struct {
+	UserStore    stores.User
 	SubjectStore stores.Subject
 }
 
-func (r *ReadSubjectByID) ReadSubjectByID(subjectID uuid.UUID) (*domain.Subject, error) {
-	s, err := r.SubjectStore.ReadByID(subjectID)
+func (r *ReadSubjectByID) ReadSubjectByID(userID uuid.UUID, subjectID uuid.UUID) (*domain.Subject, error) {
+	user, err := r.UserStore.ReadById(userID)
+	if err != nil {
+		return nil, fmt.Errorf("in readSubject: %w", err)
+	}
+
+	s, err := user.FindSubject(subjectID)
+	if err != nil {
+		return nil, fmt.Errorf("in readSubject: %w", err)
+	}
 	return s, err
 }

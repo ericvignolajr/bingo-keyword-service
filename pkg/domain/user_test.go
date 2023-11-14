@@ -28,16 +28,16 @@ func TestNewUser(t *testing.T) {
 }
 
 func TestAddSubject(t *testing.T) {
-	s, err := NewSubject("Science")
-	if err != nil {
-		t.Error(err)
-	}
 
 	u, err := NewUser("foo@example.com", "supersecret")
 	if err != nil {
 		t.Error(err)
 	}
 
+	s, err := NewSubject("Science", u.Id)
+	if err != nil {
+		t.Error(err)
+	}
 	_, err = u.AddSubject(*s)
 	if err != nil {
 		t.Error(err)
@@ -50,11 +50,11 @@ func TestIsDuplicateSubject(t *testing.T) {
 		t.Error(err)
 	}
 
-	s1, err := NewSubject("Electromagnets")
+	s1, err := NewSubject("Electromagnets", u.Id)
 	if err != nil {
 		t.Error(err)
 	}
-	s2, err := NewSubject("Electromagnets")
+	s2, err := NewSubject("Electromagnets", u.Id)
 	if err != nil {
 		t.Error(err)
 	}
@@ -66,4 +66,35 @@ func TestIsDuplicateSubject(t *testing.T) {
 
 	isDuplicate := u.IsDuplicateSubject(*s2)
 	assert.Equal(t, true, isDuplicate)
+}
+
+func TestFindSubjectByName(t *testing.T) {
+	user, err := NewUser("example@bingoboard.com", "")
+	if err != nil {
+		t.Error(err)
+	}
+
+	s, _ := NewSubject("Science", user.Id)
+	user.AddSubject(*s)
+
+	res, err := user.FindSubjectByName(s.Name)
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t, s, res)
+}
+
+func TestFindSubject(t *testing.T) {
+	user, err := NewUser("example@bingoboard.com", "")
+	if err != nil {
+		t.Error(err)
+	}
+
+	subject, _ := NewSubject("science", user.Id)
+	user.AddSubject(*subject)
+
+	actual, _ := user.FindSubject(subject.Id)
+
+	assert.Equal(t, subject, actual)
 }

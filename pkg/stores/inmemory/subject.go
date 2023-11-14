@@ -6,11 +6,8 @@ import (
 	"strings"
 
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/domain"
+	"github.com/ericvignolajr/bingo-keyword-service/pkg/stores"
 	"github.com/google/uuid"
-)
-
-const (
-	ErrSubjectExists = "subject already exists"
 )
 
 type SubjectStore struct {
@@ -63,14 +60,38 @@ func (s *SubjectStore) ReadByID(subjectID uuid.UUID) (*domain.Subject, error) {
 func (s *SubjectStore) Create(UserId uuid.UUID, Subject *domain.Subject) (*domain.Subject, error) {
 	subjectToCreate, _ := s.ReadByName(UserId, Subject.Name)
 	if subjectToCreate != nil {
-		return subjectToCreate, errors.New(ErrSubjectExists)
+		return subjectToCreate, errors.New(stores.ErrSubjectExists)
 	}
 
+	Subject.OwnerID = UserId
 	subjects, ok := s.Store[UserId]
 	if !ok {
 		s.Store[UserId] = []*domain.Subject{Subject}
 	} else {
 		s.Store[UserId] = append(subjects, Subject)
+	}
+
+	return Subject, nil
+}
+
+func (s *SubjectStore) Update(Subject *domain.Subject) (*domain.Subject, error) {
+	subjectToUpdate, _ := s.ReadByID(Subject.Id)
+	if subjectToUpdate == nil {
+		newSubject, err := s.Create(Subject.OwnerID, Subject)
+		if err != nil {
+			return nil, err
+		}
+		return newSubject, nil
+	}
+
+	subjects, ok := s.Store[Subject.OwnerID]
+	if !ok {
+		return nil, errors.New(fmt.Sprintf("could not find record in in-memory subject store for user with id: %s", Subject.OwnerID.String()))
+	}
+	for i, v := range subjects {
+		if v.Id == Subject.Id {
+			subjects[i] = Subject
+		}
 	}
 
 	return Subject, nil

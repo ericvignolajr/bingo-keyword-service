@@ -15,24 +15,31 @@ func TestReadSubjects(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
+	user, err := userStore.ReadById(uid)
+	if err != nil {
+		t.Error(err)
+	}
 
-	subjectStore := inmemory.NewSubjectStore()
-	s1, err := domain.NewSubject("Math")
+	s1, err := domain.NewSubject("Math", uid)
 	if err != nil {
 		panic(err)
 	}
-	subjectStore.Create(uid, s1)
 
-	s2, err := domain.NewSubject("Science")
+	s2, err := domain.NewSubject("Science", uid)
 	if err != nil {
 		panic(err)
 	}
-	subjectStore.Create(uid, s2)
 
-	readSubjectsRequest := usecases.ReadSubjectsRequest{uid}
-	res := usecases.ReadSubjects(readSubjectsRequest, subjectStore)
+	user.AddSubject(*s1)
+	user.AddSubject(*s2)
+
+	readSubjects := usecases.ReadSubjects{
+		UserStore: &userStore,
+	}
+
+	res := readSubjects.Exec(uid)
 	if res.Err != nil {
-		panic(res.Err)
+		t.Error(res.Err.Error())
 	}
 
 	expected := usecases.ReadSubjectsResponse{

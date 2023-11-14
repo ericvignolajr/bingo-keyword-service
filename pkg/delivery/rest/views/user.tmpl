@@ -1,16 +1,17 @@
 {{block "content" .}}
     <h1>Hello {{.User.Email}} </h1>
+    <h1>Subjects</h1>
+    <button hx-get="/subject/create" hx-swap="outerHTML" class="btn btn-outline-primary">+ Add Subject</button>
     <ul id="subjects" class="list-group" hx-target="closest li" hx-swap="outerHTML">
         {{range .Subjects}}
             {{block "subject-element" .}}
                 <li class="list-group-item d-flex flex-wrap">
-                    <h3 class="mr-auto">{{.Name}}</h3>
-                    <button class="px-10 mr-2 btn btn-lg btn-outline-primary">Edit</button>
+                    <h5 class="mr-auto">{{.Name}}</h5>
+                    <button hx-get="/subject/{{.ID}}/edit" hx-swap="innerHTML" hx-target=".main-content" hx-push-url="true" class="px-10 mr-2 btn btn-lg btn-outline-primary">Edit</button>
                     <button hx-delete="/subject/{{.ID}}" hx-confirm="Are you sure? Deleting a subject deletes all of its units and keywords as well. This cannot be undone." 
                     class="px-10 mr-2 btn btn-lg btn-outline-danger">Delete</button>
                 </li>
             {{end}}
         {{end}}
     </ul>
-    <button hx-get="/subject/create" hx-swap="outerHTML" class="btn btn-outline-primary">Add Subject</button>
 {{end}}

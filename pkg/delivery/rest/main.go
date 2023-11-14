@@ -11,7 +11,6 @@ import (
 
 	"github.com/clerkinc/clerk-sdk-go/clerk"
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/domain"
-	outputports "github.com/ericvignolajr/bingo-keyword-service/pkg/output_ports"
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/sessions"
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/stores/inmemory"
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/usecases"
@@ -40,11 +39,25 @@ func NewServer() chi.Router {
 	createSubject := usecases.CreateSubject{
 		UserStore:    &sessions.UserStore,
 		SubjectStore: subjectStore,
-		Presenter:    &outputports.MockPresenter{},
+	}
+
+	readSubject := usecases.ReadSubjectByID{
+		UserStore:    &sessions.UserStore,
+		SubjectStore: subjectStore,
+	}
+
+	readSubjects := usecases.ReadSubjects{
+		UserStore: &sessions.UserStore,
 	}
 
 	deleteSubject := usecases.DeleteSubject{
 		SubjectStore: subjectStore,
+		UserStore:    &sessions.UserStore,
+	}
+
+	createUnit := usecases.CreateUnit{
+		SubjectStore: subjectStore,
+		UserStore:    &sessions.UserStore,
 	}
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
@@ -69,10 +82,7 @@ func NewServer() chi.Router {
 				return
 			}
 
-			req := usecases.ReadSubjectsRequest{
-				UserID: u.Id,
-			}
-			subjects := usecases.ReadSubjects(req, subjectStore)
+			subjects := readSubjects.Exec(u.Id)
 			if subjects.Err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				return
@@ -123,15 +133,11 @@ func NewServer() chi.Router {
 				Name   string
 				Errors []error
 			})
-			req := usecases.CreateSubjectRequest{
-				UserId:      u.Id,
-				SubjectName: s,
-			}
-			res := createSubject.Exec(req)
-			if res.Err != nil && res.Err.Error() == domain.ErrSubjectNameEmpty {
-				w.Header().Set("HX-Reswap", "outerHTML")
+
+			_, err := createSubject.Exec(s, u.Id)
+			if err != nil && errors.Is(err, domain.ErrSubjectNameEmpty) {
 				w.Header().Set("HX-Retarget", "#create-subject-form")
-				tmplData.Errors = append(tmplData.Errors, errors.New(domain.ErrSubjectNameEmpty))
+				tmplData.Errors = append(tmplData.Errors, domain.ErrSubjectNameEmpty)
 				errTmpl.Execute(w, tmplData)
 				return
 			}
@@ -156,10 +162,7 @@ func NewServer() chi.Router {
 				return
 			}
 
-			readSubject := usecases.ReadSubjectByID{
-				SubjectStore: subjectStore,
-			}
-			s, err := readSubject.ReadSubjectByID(subjectID)
+			s, err := readSubject.ReadSubjectByID(u.Id, subjectID)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				w.Write([]byte("We've hit an issue, please retry your request"))
@@ -171,11 +174,22 @@ func NewServer() chi.Router {
 				w.WriteHeader(http.StatusUnauthorized)
 				w.Write([]byte("Unauthorized"))
 				fmt.Println("Subject owner ID does not match ID of current user")
+				fmt.Printf("UserID: %s\n", u.Id)
+				fmt.Printf("Subject Owner ID: %s\n", s.OwnerID)
 				return
 			}
 
-			tmpl, _ := template.ParseFiles(viewsPath + "/editSubject.tmpl")
-			tmpl.Execute(w, s)
+			tmplData := struct {
+				ID      uuid.UUID
+				Subject string
+				Units   []*domain.Unit
+			}{
+				ID:      subjectID,
+				Subject: s.Name,
+				Units:   s.Units,
+			}
+			tmpl, _ := template.ParseFiles(viewsPath + "/subject.tmpl")
+			tmpl.Execute(w, tmplData)
 		})
 		r.Put("/{subjectID}", func(w http.ResponseWriter, r *http.Request) {
 			fmt.Println(chi.URLParam(r, "subjectID"))
@@ -199,6 +213,98 @@ func NewServer() chi.Router {
 				w.WriteHeader(http.StatusInternalServerError)
 			}
 		})
+
+		r.Route("/{subjectID}/unit", func(r chi.Router) {
+			r.Use(requireSession)
+			r.Use(sessions.AddUserToContext)
+			r.Get("/create", func(w http.ResponseWriter, r *http.Request) {
+				sID, err := uuid.Parse(chi.URLParam(r, "subjectID"))
+				if err != nil {
+					w.WriteHeader(http.StatusBadRequest)
+					w.Write([]byte("Bad Request"))
+					fmt.Println("could not parse subject ID into UUID")
+					return
+				}
+				tmplData := struct {
+					SubjectID uuid.UUID
+					Errors    []error
+				}{
+					SubjectID: sID,
+					Errors:    nil,
+				}
+				fmt.Println(tmplData.SubjectID)
+				tmpl, err := template.ParseFiles(viewsPath + "/createUnit.tmpl")
+				if err != nil {
+					fmt.Println(err)
+				}
+				tmpl.Execute(w, tmplData)
+			})
+			r.Post("/create", func(w http.ResponseWriter, r *http.Request) {
+				ctx := r.Context()
+				u, ok := ctx.Value(sessions.User).(*domain.User)
+				if !ok {
+					w.WriteHeader(http.StatusUnauthorized)
+					w.Write([]byte("Unauthorized"))
+					fmt.Println("No user on context")
+					return
+				}
+
+				sID, err := uuid.Parse(chi.URLParam(r, "subjectID"))
+				if err != nil {
+					w.WriteHeader(http.StatusBadRequest)
+					w.Write([]byte("Bad Request"))
+					fmt.Printf("could not parse subject ID \"%s\" into UUID", sID)
+					return
+				}
+
+				err = r.ParseForm()
+				if err != nil {
+					w.WriteHeader(http.StatusBadRequest)
+					return
+				}
+				unitName := r.PostFormValue("unitName")
+				_, err = createUnit.Exec(unitName, u.Id, sID)
+				if err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+					fmt.Println(err)
+					return
+				}
+
+				subject, err := readSubject.ReadSubjectByID(u.Id, sID)
+				if err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+					fmt.Println(err)
+					return
+				}
+
+				if subject.OwnerID != u.Id {
+					w.WriteHeader(http.StatusUnauthorized)
+					w.Write([]byte("Unauthorized"))
+					fmt.Println("Subject owner ID does not match ID of current user")
+					fmt.Printf("UserID: %s\n", u.Id)
+					fmt.Printf("Subject Owner ID: %s\n", subject.OwnerID)
+					return
+				}
+
+				tmplData := struct {
+					Subject string
+					ID      uuid.UUID
+					Units   []*domain.Unit
+				}{
+					Subject: subject.Name,
+					ID:      subject.Id,
+					Units:   subject.Units,
+				}
+
+				fmt.Println(tmplData)
+				for _, v := range tmplData.Units {
+					fmt.Println(v.Name)
+				}
+
+				http.Redirect(w, r, fmt.Sprintf("/subject/%s/edit", sID), http.StatusFound)
+			})
+		})
+
 	})
 
 	return r

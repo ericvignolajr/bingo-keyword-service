@@ -1,67 +1,38 @@
 package usecases
 
 import (
+	"fmt"
+
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/domain"
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/stores"
 	"github.com/google/uuid"
 )
 
-type CreateSubjectRequest struct {
-	UserId      uuid.UUID
-	SubjectName string
-}
-
-type CreateSubjectResponse struct {
-	SubjectID uuid.UUID
-	Ok        bool
-	Err       error
-}
-
-type CreateSubjectPresenter interface {
-	PresentCreateSubject(CreateSubjectResponse)
-}
-
 type CreateSubject struct {
 	UserStore    stores.User
 	SubjectStore stores.Subject
-	Presenter    CreateSubjectPresenter
 }
 
-func (c *CreateSubject) Exec(req CreateSubjectRequest) CreateSubjectResponse {
-	var result CreateSubjectResponse
-
-	user, err := c.UserStore.ReadById(req.UserId)
+func (c *CreateSubject) Exec(name string, userID uuid.UUID) (*domain.Subject, error) {
+	user, err := c.UserStore.ReadById(userID)
 	if err != nil {
-		return CreateSubjectResponse{
-			uuid.Nil,
-			false,
-			err,
-		}
+		return nil, fmt.Errorf("in createSubject: %w", err)
 	}
 
-	subject, err := domain.NewSubject(req.SubjectName)
+	subject, err := domain.NewSubject(name, user.Id)
 	if err != nil {
-		return CreateSubjectResponse{
-			uuid.Nil,
-			false,
-			err,
-		}
+		return nil, fmt.Errorf("in createSubject: %w", err)
 	}
 
-	_, err = c.SubjectStore.Create(user.Id, subject)
+	_, err = user.AddSubject(*subject)
 	if err != nil {
-		return CreateSubjectResponse{
-			uuid.Nil,
-			false,
-			err,
-		}
+		return nil, fmt.Errorf("in createSubject: %w", err)
 	}
 
-	result = CreateSubjectResponse{
-		subject.Id,
-		true,
-		nil,
+	_, err = c.UserStore.Save(user)
+	if err != nil {
+		return nil, fmt.Errorf("in createSubject: %w", err)
 	}
-	c.Presenter.PresentCreateSubject(result)
-	return result
+
+	return subject, nil
 }

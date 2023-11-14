@@ -1,0 +1,17 @@
+{{block "content" .}}
+    <h1>{{.Subject}} Units</h1>
+    <button hx-get="/user" hx-target="body" hx-push-url="true" hx-swap="outerHTML" class="btn btn-outline-primary">&lt; Back</button>
+    <button hx-get="/subject/{{.ID}}/unit/create" hx-swap="outerHTML" class="btn btn-outline-primary">+ Add Unit</button>
+    <ul id="units" class="list-group" hx-target="closest li" hx-swap="outerHTML">
+        {{range .Units}}
+            {{block "unit-element" .}}
+                <li class="list-group-item d-flex flex-wrap">
+                    <h5 class="mr-auto">{{.Name}}</h5>
+                    <button hx-get="/unit/{{.Id}}/edit" hx-swap="innerHTML" hx-target=".main-content" hx-push-url="true" class="px-10 mr-2 btn btn-lg btn-outline-primary">Edit</button>
+                    <button hx-delete="/unit/{{.Id}}" hx-confirm="Are you sure? Deleting a unit deletes all of its keywords as well. This cannot be undone." 
+                    class="px-10 mr-2 btn btn-lg btn-outline-danger">Delete</button>
+                </li>
+            {{end}}
+        {{end}}
+    </ul>
+{{end}}

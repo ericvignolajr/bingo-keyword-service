@@ -45,7 +45,7 @@ func AddUserToContext(h http.Handler) http.Handler {
 			if err != nil {
 				w.WriteHeader(http.StatusUnauthorized)
 				w.Write([]byte("Unauthorized"))
-				fmt.Println("Failed to create")
+				fmt.Println("Failed to create user")
 				return
 			}
 

@@ -14,7 +14,7 @@ func TestNewSubject(t *testing.T) {
 		Name: "Science",
 	}
 
-	s, err := domain.NewSubject("Science")
+	s, err := domain.NewSubject("Science", uuid.Nil)
 	if err != nil {
 		t.Error(err)
 	}
@@ -23,11 +23,11 @@ func TestNewSubject(t *testing.T) {
 }
 
 func TestNewSubjectEmptyName(t *testing.T) {
-	s, err := domain.NewSubject("")
+	s, err := domain.NewSubject("", uuid.Nil)
 	if s != nil {
 		t.Error()
 	}
-	assert.EqualError(t, err, domain.ErrSubjectNameEmpty)
+	assert.EqualError(t, err, domain.ErrSubjectNameEmpty.Error())
 }
 
 func TestAddUnit(t *testing.T) {
@@ -35,7 +35,7 @@ func TestAddUnit(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	s, err := domain.NewSubject("Science")
+	s, err := domain.NewSubject("Science", uuid.Nil)
 	if err != nil {
 		t.Error(err)
 	}
@@ -58,7 +58,7 @@ func TestIsDuplicateUnit(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	s, err := domain.NewSubject("Science")
+	s, err := domain.NewSubject("Science", uuid.Nil)
 	if err != nil {
 		t.Error(err)
 	}

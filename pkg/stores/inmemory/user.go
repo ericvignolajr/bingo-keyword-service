@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/domain"
+	"github.com/ericvignolajr/bingo-keyword-service/pkg/stores"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -13,18 +14,18 @@ type UserStore struct {
 }
 
 func (u *UserStore) ReadById(id uuid.UUID) (*domain.User, error) {
-	for _, v := range u.store {
+	for i, v := range u.store {
 		if v.Id == id {
-			return &v, nil
+			return &u.store[i], nil
 		}
 	}
 
-	return nil, fmt.Errorf("user %s could not be found", id)
+	return nil, fmt.Errorf("%s, userID: %s", stores.ErrUserDoesNotExist, id)
 }
 func (u *UserStore) ReadByEmail(e string) (*domain.User, error) {
-	for _, v := range u.store {
+	for i, v := range u.store {
 		if v.Email == e {
-			return &v, nil
+			return &u.store[i], nil
 		}
 	}
 
@@ -50,4 +51,15 @@ func (u *UserStore) CreateAccount(email string) error {
 
 	u.store = append(u.store, *user)
 	return nil
+}
+
+func (u *UserStore) Save(user *domain.User) (*domain.User, error) {
+	userToUpdate, err := u.ReadById(user.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	userToUpdate = user
+	userToUpdate.Subjects = user.Subjects
+	return userToUpdate, nil
 }

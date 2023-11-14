@@ -1,0 +1,13 @@
+<form id="create-unit-form" hx-post="/subject/{{.SubjectID}}/unit/create" hx-swap="innerHTML" hx-target=".main-content">
+  {{range .Errors}}
+  <div>
+    <span class="error" style="color: red;">{{.Error}}</span>
+  </div>
+  {{end}}    
+  <div class="form-group">
+    <label>Unit Name</label>
+    <input type="text" name="unitName" class="form-control">
+  </div>
+  <button class="btn btn-outline-primary">Submit</button>
+  <button class="btn btn-outline-danger" hx-get="/subject/{{.SubjectID}}/edit" hx-target=".main-content" hx-swap="innerHTML">Cancel</button>
+</form>
