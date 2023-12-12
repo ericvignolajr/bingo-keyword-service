@@ -34,7 +34,7 @@ func TestAddSubject(t *testing.T) {
 		t.Error(err)
 	}
 
-	s, err := NewSubject("Science", u.Id)
+	s, err := NewSubject("Science", u.ID)
 	if err != nil {
 		t.Error(err)
 	}
@@ -50,11 +50,11 @@ func TestIsDuplicateSubject(t *testing.T) {
 		t.Error(err)
 	}
 
-	s1, err := NewSubject("Electromagnets", u.Id)
+	s1, err := NewSubject("Electromagnets", u.ID)
 	if err != nil {
 		t.Error(err)
 	}
-	s2, err := NewSubject("Electromagnets", u.Id)
+	s2, err := NewSubject("Electromagnets", u.ID)
 	if err != nil {
 		t.Error(err)
 	}
@@ -74,7 +74,7 @@ func TestFindSubjectByName(t *testing.T) {
 		t.Error(err)
 	}
 
-	s, _ := NewSubject("Science", user.Id)
+	s, _ := NewSubject("Science", user.ID)
 	user.AddSubject(*s)
 
 	res, err := user.FindSubjectByName(s.Name)
@@ -91,7 +91,7 @@ func TestFindSubject(t *testing.T) {
 		t.Error(err)
 	}
 
-	subject, _ := NewSubject("science", user.Id)
+	subject, _ := NewSubject("science", user.ID)
 	user.AddSubject(*subject)
 
 	actual, _ := user.FindSubject(subject.Id)

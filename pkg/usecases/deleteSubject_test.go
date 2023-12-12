@@ -19,8 +19,8 @@ func TestDeleteSubject(t *testing.T) {
 		t.Error(err)
 	}
 
-	subject1, _ := domain.NewSubject("Science", user.Id)
-	subject2, _ := domain.NewSubject("Physics", user.Id)
+	subject1, _ := domain.NewSubject("Science", user.ID)
+	subject2, _ := domain.NewSubject("Physics", user.ID)
 	user.AddSubject(*subject1)
 	user.AddSubject(*subject2)
 	uStore.Save(user)
@@ -30,12 +30,12 @@ func TestDeleteSubject(t *testing.T) {
 		UserStore:    &uStore,
 	}
 
-	updatedUser, err := uStore.ReadById(user.Id)
+	updatedUser, err := uStore.ReadById(user.ID)
 	if err != nil {
 		t.Error(err)
 	}
 
-	deleteSubject.Exec(user.Id, subject1.Id)
+	deleteSubject.Exec(user.ID, subject1.Id)
 	expected := []*domain.Subject{subject2}
 
 	assert.Equal(t, expected, updatedUser.Subjects)

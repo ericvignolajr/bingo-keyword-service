@@ -22,7 +22,7 @@ func TestReadSubject(t *testing.T) {
 		t.Error(err)
 	}
 
-	subject, _ := domain.NewSubject("Science", user.Id)
+	subject, _ := domain.NewSubject("Science", user.ID)
 	user.AddSubject(*subject)
 	userStore.Save(user)
 
@@ -30,7 +30,7 @@ func TestReadSubject(t *testing.T) {
 		UserStore:    &userStore,
 		SubjectStore: subjectStore,
 	}
-	readRes, err := readSubject.Exec(subject.Name, user.Id)
+	readRes, err := readSubject.Exec(subject.Name, user.ID)
 	if err != nil {
 		t.Error(err)
 	}

@@ -27,14 +27,14 @@ func TestCreateUnit(t *testing.T) {
 		t.Error(err)
 	}
 
-	s, err := domain.NewSubject("Science", u.Id)
+	s, err := domain.NewSubject("Science", u.ID)
 	if err != nil {
 		t.Error(err)
 	}
 	u.AddSubject(*s)
 	uStore.Save(u)
 
-	newUnit, err := createUnit.Exec("Electro magnets", u.Id, s.Id)
+	newUnit, err := createUnit.Exec("Electro magnets", u.ID, s.Id)
 	if err != nil {
 		t.Error(err)
 	}

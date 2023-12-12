@@ -82,7 +82,7 @@ func NewServer() chi.Router {
 				return
 			}
 
-			subjects := readSubjects.Exec(u.Id)
+			subjects := readSubjects.Exec(u.ID)
 			if subjects.Err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				return
@@ -134,7 +134,7 @@ func NewServer() chi.Router {
 				Errors []error
 			})
 
-			_, err := createSubject.Exec(s, u.Id)
+			_, err := createSubject.Exec(s, u.ID)
 			if err != nil && errors.Is(err, domain.ErrSubjectNameEmpty) {
 				w.Header().Set("HX-Retarget", "#create-subject-form")
 				tmplData.Errors = append(tmplData.Errors, domain.ErrSubjectNameEmpty)
@@ -162,7 +162,7 @@ func NewServer() chi.Router {
 				return
 			}
 
-			s, err := readSubject.ReadSubjectByID(u.Id, subjectID)
+			s, err := readSubject.ReadSubjectByID(u.ID, subjectID)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				w.Write([]byte("We've hit an issue, please retry your request"))
@@ -170,12 +170,12 @@ func NewServer() chi.Router {
 				return
 			}
 
-			if s.OwnerID != u.Id {
+			if s.UserID != u.ID {
 				w.WriteHeader(http.StatusUnauthorized)
 				w.Write([]byte("Unauthorized"))
 				fmt.Println("Subject owner ID does not match ID of current user")
-				fmt.Printf("UserID: %s\n", u.Id)
-				fmt.Printf("Subject Owner ID: %s\n", s.OwnerID)
+				fmt.Printf("UserID: %s\n", u.ID)
+				fmt.Printf("Subject Owner ID: %s\n", s.UserID)
 				return
 			}
 
@@ -208,7 +208,7 @@ func NewServer() chi.Router {
 			if err != nil {
 				w.WriteHeader(http.StatusBadRequest)
 			}
-			err = deleteSubject.Exec(u.Id, subjectID)
+			err = deleteSubject.Exec(u.ID, subjectID)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 			}
@@ -263,26 +263,26 @@ func NewServer() chi.Router {
 					return
 				}
 				unitName := r.PostFormValue("unitName")
-				_, err = createUnit.Exec(unitName, u.Id, sID)
+				_, err = createUnit.Exec(unitName, u.ID, sID)
 				if err != nil {
 					w.WriteHeader(http.StatusInternalServerError)
 					fmt.Println(err)
 					return
 				}
 
-				subject, err := readSubject.ReadSubjectByID(u.Id, sID)
+				subject, err := readSubject.ReadSubjectByID(u.ID, sID)
 				if err != nil {
 					w.WriteHeader(http.StatusInternalServerError)
 					fmt.Println(err)
 					return
 				}
 
-				if subject.OwnerID != u.Id {
+				if subject.UserID != u.ID {
 					w.WriteHeader(http.StatusUnauthorized)
 					w.Write([]byte("Unauthorized"))
 					fmt.Println("Subject owner ID does not match ID of current user")
-					fmt.Printf("UserID: %s\n", u.Id)
-					fmt.Printf("Subject Owner ID: %s\n", subject.OwnerID)
+					fmt.Printf("UserID: %s\n", u.ID)
+					fmt.Printf("Subject Owner ID: %s\n", subject.UserID)
 					return
 				}
 

@@ -1,20 +1,21 @@
-package domain
+package domain_test
 
 import (
 	"fmt"
 	"testing"
 
+	"github.com/ericvignolajr/bingo-keyword-service/pkg/domain"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestNewUnit(t *testing.T) {
-	expected := &Unit{
-		Id:   uuid.New(),
+	expected := &domain.Unit{
+		ID:   uuid.New(),
 		Name: "Electricity and Magnets",
 	}
 
-	u, err := NewUnit(expected.Name)
+	u, err := domain.NewUnit(expected.Name)
 	if err != nil {
 		t.Error(err)
 	}
@@ -25,12 +26,12 @@ func TestNewUnit(t *testing.T) {
 }
 
 func TestAddKeyword(t *testing.T) {
-	u, err := NewUnit("electricity and magnets")
+	u, err := domain.NewUnit("electricity and magnets")
 	if err != nil {
 		t.Errorf("could not construct unit using factory function %s", err)
 	}
 
-	k1, _ := NewKeyword("magnets", "defintion of a magnet")
+	k1, _ := domain.NewKeyword("magnets", "defintion of a magnet")
 	_, err = u.AddKeyword(*k1)
 	if err != nil {
 		t.Errorf("unexpected input when adding keyword to unit %s", err)
@@ -40,13 +41,13 @@ func TestAddKeyword(t *testing.T) {
 }
 
 func TestAddKeyword_DuplicateKeyword(t *testing.T) {
-	u, err := NewUnit("electricity and magnets")
+	u, err := domain.NewUnit("electricity and magnets")
 	if err != nil {
 		t.Errorf("could not construct unit using factory function %s", err)
 	}
 
-	k1, _ := NewKeyword("magnets", "defintion of a magnet")
-	k2, _ := NewKeyword("magnets", "defintion of a magnet")
+	k1, _ := domain.NewKeyword("magnets", "defintion of a magnet")
+	k2, _ := domain.NewKeyword("magnets", "defintion of a magnet")
 
 	_, err = u.AddKeyword(*k1)
 	if err != nil {
@@ -58,9 +59,9 @@ func TestAddKeyword_DuplicateKeyword(t *testing.T) {
 }
 
 func TestIsDuplicateKeyword(t *testing.T) {
-	u, _ := NewUnit("magnets and electricity")
+	u, _ := domain.NewUnit("magnets and electricity")
 
-	k1, err := NewKeyword("magnet", "definition of a magnet")
+	k1, err := domain.NewKeyword("magnet", "definition of a magnet")
 	if err != nil {
 		t.Errorf("unexpected input when adding keyword to unit %s", err)
 	}
@@ -70,7 +71,7 @@ func TestIsDuplicateKeyword(t *testing.T) {
 		t.Errorf("unexpected input when adding keyword to unit %s", err)
 	}
 
-	k2, err := NewKeyword("magnet", "definition of a magnet")
+	k2, err := domain.NewKeyword("magnet", "definition of a magnet")
 	if err != nil {
 		t.Errorf("unexpected input when adding keyword to unit %s", err)
 	}

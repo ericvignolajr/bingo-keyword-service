@@ -9,10 +9,11 @@ import (
 )
 
 type Keyword struct {
-	Id               uuid.UUID
+	Id               uuid.UUID `gorm:"primaryKey"`
 	Name, Definition string
-	Picture          image.Image
-	TranslateTo      map[string]Translation
+	Picture          image.Image            `gorm:"type:bytes"`
+	TranslateTo      map[string]Translation `gorm:"type:string"`
+	UnitID           uuid.UUID
 }
 
 type Translation struct {

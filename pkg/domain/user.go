@@ -13,8 +13,8 @@ const (
 )
 
 type User struct {
-	Id          uuid.UUID
-	ExternalIDs []string
+	ID          uuid.UUID `gorm:"primaryKey;type:uuid"`
+	ExternalIDs []string  `gorm:"type:string[]"`
 	Email       string
 	Password    string
 	Subjects    []*Subject
@@ -27,7 +27,7 @@ func NewUser(email, password string) (*User, error) {
 	}
 
 	return &User{
-		Id:          uuid.New(),
+		ID:          uuid.New(),
 		Email:       e.Address,
 		ExternalIDs: make([]string, 0),
 		Password:    password,
@@ -57,7 +57,7 @@ func (u *User) FindSubject(sID uuid.UUID) (*Subject, error) {
 
 func (u *User) FindSubjectByName(subjectName string) (*Subject, error) {
 	for i, v := range u.Subjects {
-		if strings.ToLower(v.Name) == strings.ToLower(subjectName) {
+		if strings.EqualFold(v.Name, subjectName) {
 			return u.Subjects[i], nil
 		}
 	}
@@ -83,7 +83,7 @@ func (u *User) DeleteSubject(subjectID uuid.UUID) error {
 		}
 	}
 
-	if nullIndex.found == false {
+	if !nullIndex.found {
 		return nil
 	}
 

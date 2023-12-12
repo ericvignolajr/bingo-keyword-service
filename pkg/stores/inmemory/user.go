@@ -15,7 +15,7 @@ type UserStore struct {
 
 func (u *UserStore) ReadById(id uuid.UUID) (*domain.User, error) {
 	for i, v := range u.store {
-		if v.Id == id {
+		if v.ID == id {
 			return &u.store[i], nil
 		}
 	}
@@ -40,7 +40,7 @@ func (u *UserStore) Create(email string, password string) (uuid.UUID, error) {
 	}
 	u.store = append(u.store, *user)
 
-	return user.Id, nil
+	return user.ID, nil
 }
 
 func (u *UserStore) CreateAccount(email string) error {
@@ -54,7 +54,7 @@ func (u *UserStore) CreateAccount(email string) error {
 }
 
 func (u *UserStore) Save(user *domain.User) (*domain.User, error) {
-	userToUpdate, err := u.ReadById(user.Id)
+	userToUpdate, err := u.ReadById(user.ID)
 	if err != nil {
 		return nil, err
 	}
