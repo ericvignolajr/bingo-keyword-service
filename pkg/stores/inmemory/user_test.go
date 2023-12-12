@@ -30,7 +30,7 @@ func TestSave(t *testing.T) {
 		t.Error(err)
 	}
 
-	newSubject, err := domain.NewSubject("science", u.Id)
+	newSubject, err := domain.NewSubject("science", u.ID)
 	if err != nil {
 		t.Error(err)
 	}
@@ -46,11 +46,11 @@ func TestSave(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	updatedUser, err := uStore.ReadById(u.Id)
+	updatedUser, err := uStore.ReadById(u.ID)
 	if err != nil {
 		t.Error(err)
 	}
 
 	assert.Contains(t, updatedUser.Subjects, newSubject)
-	assert.Equal(t, u.Id, updatedUser.Id)
+	assert.Equal(t, u.ID, updatedUser.ID)
 }

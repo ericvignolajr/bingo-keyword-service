@@ -7,15 +7,16 @@ import (
 )
 
 type Unit struct {
-	Id          uuid.UUID
+	ID          uuid.UUID `gorm:"primaryKey"`
 	Name        string
 	Keywords    []*Keyword
-	TranslateTo map[string]string
+	TranslateTo map[string]string `gorm:"type:string"`
+	SubjectID   uuid.UUID
 }
 
 func NewUnit(name string) (*Unit, error) {
 	return &Unit{
-		Id:          uuid.New(),
+		ID:          uuid.New(),
 		Name:        name,
 		Keywords:    []*Keyword{},
 		TranslateTo: map[string]string{},

@@ -63,7 +63,7 @@ func (s *SubjectStore) Create(UserId uuid.UUID, Subject *domain.Subject) (*domai
 		return subjectToCreate, errors.New(stores.ErrSubjectExists)
 	}
 
-	Subject.OwnerID = UserId
+	Subject.UserID = UserId
 	subjects, ok := s.Store[UserId]
 	if !ok {
 		s.Store[UserId] = []*domain.Subject{Subject}
@@ -77,16 +77,16 @@ func (s *SubjectStore) Create(UserId uuid.UUID, Subject *domain.Subject) (*domai
 func (s *SubjectStore) Update(Subject *domain.Subject) (*domain.Subject, error) {
 	subjectToUpdate, _ := s.ReadByID(Subject.Id)
 	if subjectToUpdate == nil {
-		newSubject, err := s.Create(Subject.OwnerID, Subject)
+		newSubject, err := s.Create(Subject.UserID, Subject)
 		if err != nil {
 			return nil, err
 		}
 		return newSubject, nil
 	}
 
-	subjects, ok := s.Store[Subject.OwnerID]
+	subjects, ok := s.Store[Subject.UserID]
 	if !ok {
-		return nil, errors.New(fmt.Sprintf("could not find record in in-memory subject store for user with id: %s", Subject.OwnerID.String()))
+		return nil, errors.New(fmt.Sprintf("could not find record in in-memory subject store for user with id: %s", Subject.UserID.String()))
 	}
 	for i, v := range subjects {
 		if v.Id == Subject.Id {
