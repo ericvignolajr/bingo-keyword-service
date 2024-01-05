@@ -5,7 +5,6 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
 type SQLUserStore struct {
@@ -13,9 +12,7 @@ type SQLUserStore struct {
 }
 
 func NewSQLUserStore() (*SQLUserStore, error) {
-	db, err := gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
-	})
+	db, err := gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
 	if err != nil {
 		return nil, err
 	}
@@ -31,7 +28,9 @@ func (s *SQLUserStore) ReadById(userID uuid.UUID) (*domain.User, error) {
 	user := domain.User{
 		ID: userID,
 	}
-	result := s.DB.Model(&user).First(&user)
-	result.Row().Scan(user)
-	return nil, nil
+	err := s.DB.Preload("Subjects").First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
 }

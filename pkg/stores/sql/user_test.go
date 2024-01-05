@@ -1,11 +1,11 @@
 package sql_test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/domain"
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/stores/sql"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestReadById(t *testing.T) {
@@ -17,10 +17,17 @@ func TestReadById(t *testing.T) {
 	user, _ := domain.NewUser("foo@example.com", "foobar")
 	subj, _ := domain.NewSubject("electro-magnets", user.ID)
 	user.AddSubject(*subj)
-	uStore.DB.Model(user).Create(user)
+	uStore.DB.Create(user)
+
 	subjFromDB := &domain.Subject{}
-	subjResult := uStore.DB.Model(subj).First(subjFromDB)
-	subjResult.Scan(subjFromDB)
-	fmt.Println(subjFromDB)
-	uStore.ReadById(user.ID)
+	err = uStore.DB.First(&subjFromDB).Error
+	if err != nil {
+		t.Error(err)
+	}
+	userFromDB, err := uStore.ReadById(user.ID)
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.Equal(t, user, userFromDB)
 }
