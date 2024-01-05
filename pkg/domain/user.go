@@ -29,7 +29,7 @@ func NewUser(email, password string) (*User, error) {
 	return &User{
 		ID:          uuid.New(),
 		Email:       e.Address,
-		ExternalIDs: make([]string, 0),
+		ExternalIDs: nil,
 		Password:    password,
 		Subjects:    []*Subject{},
 	}, nil

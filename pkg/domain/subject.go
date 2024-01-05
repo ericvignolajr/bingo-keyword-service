@@ -27,7 +27,7 @@ func NewSubject(name string, ownerID uuid.UUID) (*Subject, error) {
 	return &Subject{
 		Id:     uuid.New(),
 		Name:   capitalizedName,
-		Units:  []*Unit{},
+		Units:  nil,
 		UserID: ownerID,
 	}, nil
 }
