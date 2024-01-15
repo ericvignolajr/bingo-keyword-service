@@ -28,6 +28,7 @@ func NewSQLUserStore() (*SQLUserStore, error) {
 		domain.Subject{},
 		domain.Unit{},
 		domain.Translation{},
+		domain.Keyword{},
 	)
 	return &SQLUserStore{DB: db}, nil
 }
@@ -54,4 +55,12 @@ func (s *SQLUserStore) ReadByEmail(email string) (*domain.User, error) {
 	}
 
 	return &user, nil
+}
+
+func (s *SQLUserStore) Save(User *domain.User) (*domain.User, error) {
+	if err := s.DB.Save(User).Error; err != nil {
+		return nil, err
+	}
+
+	return User, nil
 }

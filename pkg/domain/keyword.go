@@ -11,16 +11,16 @@ import (
 type Keyword struct {
 	Id               uuid.UUID `gorm:"primaryKey"`
 	Name, Definition string
-	Picture          image.Image            `gorm:"type:bytes"`
-	TranslateTo      map[string]Translation `gorm:"type:string"`
+	Picture          image.Image    `gorm:"type:bytes"`
+	Translations     []*Translation `gorm:"polymorphic:Owner"`
 	UnitID           uuid.UUID
 }
 
 func NewKeyword(name, defintion string) (*Keyword, error) {
 	return &Keyword{
-		Id:          uuid.New(),
-		Name:        name,
-		Definition:  defintion,
-		TranslateTo: map[string]Translation{},
+		Id:           uuid.New(),
+		Name:         name,
+		Definition:   defintion,
+		Translations: nil,
 	}, nil
 }
