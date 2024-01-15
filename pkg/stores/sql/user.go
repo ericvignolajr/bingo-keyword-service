@@ -28,6 +28,7 @@ func NewSQLUserStore() (*SQLUserStore, error) {
 		domain.Subject{},
 		domain.Unit{},
 		domain.Translation{},
+		domain.Keyword{},
 	)
 	return &SQLUserStore{DB: db}, nil
 }
