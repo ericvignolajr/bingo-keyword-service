@@ -10,10 +10,10 @@ import (
 
 func TestNewKeyword(t *testing.T) {
 	expected := &Keyword{
-		Id:          uuid.New(),
-		Name:        "magent",
-		Definition:  "magnet defintion",
-		TranslateTo: map[string]Translation{},
+		Id:           uuid.New(),
+		Name:         "magent",
+		Definition:   "magnet defintion",
+		Translations: nil,
 	}
 
 	k, err := NewKeyword(expected.Name, expected.Definition)
