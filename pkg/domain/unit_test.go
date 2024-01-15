@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/domain"
+	"github.com/google/go-cmp/cmp"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
@@ -78,4 +79,50 @@ func TestIsDuplicateKeyword(t *testing.T) {
 
 	isDuplicate := u.IsDuplicateKeyword(*k2)
 	assert.Equal(t, true, isDuplicate)
+}
+
+func TestEqual(t *testing.T) {
+	type testCase struct {
+		name     string
+		unit1    *domain.Unit
+		unit2    *domain.Unit
+		expected bool
+	}
+
+	u1, _ := domain.NewUnit("magnets and electricity")
+	u2, _ := domain.NewUnit("weather and biology")
+
+	testCase1 := testCase{
+		name:     "two different units",
+		unit1:    u1,
+		unit2:    u2,
+		expected: false,
+	}
+
+	u3, _ := domain.NewUnit(u1.Name)
+	testCase2 := testCase{
+		name:     "ids don't match",
+		unit1:    u1,
+		unit2:    u3,
+		expected: false,
+	}
+
+	testCases := []testCase{
+		testCase1,
+		testCase2,
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			result := testCase.unit1.Equal(testCase.unit2)
+			if result != testCase.expected {
+				fmt.Println(cmp.Diff(testCase.unit1, testCase.unit2))
+				t.Errorf("on test %s, got %t, expected %t", testCase.name, result, testCase.expected)
+			}
+		})
+	}
+
+	isEqual := cmp.Equal(u1, u2)
+	assert.Equal(t, false, isEqual)
+
 }

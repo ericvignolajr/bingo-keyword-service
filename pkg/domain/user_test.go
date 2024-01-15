@@ -1,8 +1,10 @@
 package domain
 
 import (
+	"fmt"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -97,4 +99,55 @@ func TestFindSubject(t *testing.T) {
 	actual, _ := user.FindSubject(subject.Id)
 
 	assert.Equal(t, subject, actual)
+}
+
+func TestEqual(t *testing.T) {
+	type testCase struct {
+		name     string
+		user1    *User
+		user2    *User
+		expected bool
+	}
+
+	u1, _ := NewUser("foo@example.com", "12345")
+	u2, _ := NewUser("foo@example.com", "12345")
+
+	testCase1 := testCase{
+		name:     "IDs don't match",
+		user1:    u1,
+		user2:    u2,
+		expected: false,
+	}
+
+	testCase2 := testCase{
+		name:     "one is nil",
+		user1:    u1,
+		user2:    nil,
+		expected: false,
+	}
+
+	mismatchEmailUser, _ := NewUser("bar@example.com", "12345")
+	mismatchEmailUser.ID = u1.ID
+	testCase3 := testCase{
+		name:     "emails don't match",
+		user1:    u1,
+		user2:    mismatchEmailUser,
+		expected: false,
+	}
+
+	testCases := []testCase{
+		testCase1,
+		testCase2,
+		testCase3,
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			result := testCase.user1.Equal(testCase.user2)
+			if result != testCase.expected {
+				fmt.Println(cmp.Diff(testCase.user1, testCase.user2))
+				t.Errorf("on test %s, got %t, expected %t", testCase.name, result, testCase.expected)
+			}
+		})
+	}
 }

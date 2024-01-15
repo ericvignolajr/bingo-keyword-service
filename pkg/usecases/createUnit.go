@@ -34,9 +34,6 @@ func (c *CreateUnit) Exec(name string, userID uuid.UUID, subjectID uuid.UUID) (*
 		return nil, fmt.Errorf("in createUnit: %w", err)
 	}
 
-	fmt.Println("in createUnit")
-	fmt.Println(user.Subjects[0].Units[0])
-
 	_, err = c.UserStore.Save(user)
 	if err != nil {
 		return nil, err
