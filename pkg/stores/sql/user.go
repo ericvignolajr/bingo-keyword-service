@@ -48,7 +48,7 @@ func (s *SQLUserStore) ReadByEmail(email string) (*domain.User, error) {
 		Email: email,
 	}
 
-	err := s.DB.First(&user).Where("Email = ?", user.Email).Preload("Subjects").Error
+	err := s.DB.Where("email = ?", user.Email).Preload("Subjects").First(&user).Error
 	if err != nil {
 		return nil, err
 	}
