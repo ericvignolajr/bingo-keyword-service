@@ -31,7 +31,7 @@ func NewUser(email, password string) (*User, error) {
 		Email:       e.Address,
 		ExternalIDs: nil,
 		Password:    password,
-		Subjects:    []*Subject{},
+		Subjects:    nil,
 	}, nil
 }
 
@@ -102,4 +102,25 @@ func (u *User) IsDuplicateSubject(s Subject) bool {
 	}
 
 	return false
+}
+
+func (u *User) Equal(other *User) bool {
+	if other == nil {
+		return false
+	}
+	if u.ID != other.ID {
+		return false
+	}
+	if u.Email != other.Email {
+		return false
+	}
+	if len(u.ExternalIDs) != len(other.ExternalIDs) {
+		return false
+	}
+	for i := range u.ExternalIDs {
+		if u.ExternalIDs[i] != other.ExternalIDs[i] {
+			return false
+		}
+	}
+	return true
 }

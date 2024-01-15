@@ -16,10 +16,6 @@ type Keyword struct {
 	UnitID           uuid.UUID
 }
 
-type Translation struct {
-	Name, Definition string
-}
-
 func NewKeyword(name, defintion string) (*Keyword, error) {
 	return &Keyword{
 		Id:          uuid.New(),
