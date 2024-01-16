@@ -52,3 +52,19 @@ func TestReadByEmail(t *testing.T) {
 		t.FailNow()
 	}
 }
+
+func TestSave(t *testing.T) {
+	user, _ := domain.NewUser("foo@example.com", "baz")
+	uStore, _ := sql.NewSQLUserStore()
+
+	uStore.DB.Create(user)
+	userFromDB, _ := uStore.ReadById(user.ID)
+	newEmail := "updated@example.com"
+	userFromDB.Email = newEmail
+
+	uStore.Save(userFromDB)
+
+	userAfterUpdate, _ := uStore.ReadById(user.ID)
+
+	assert.Equal(t, newEmail, userAfterUpdate.Email)
+}
