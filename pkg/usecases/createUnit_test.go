@@ -34,7 +34,7 @@ func TestCreateUnit(t *testing.T) {
 	u.AddSubject(*s)
 	uStore.Save(u)
 
-	newUnit, err := createUnit.Exec("Electro magnets", u.ID, s.Id)
+	newUnit, err := createUnit.Exec("Electro magnets", u.ID, s.ID)
 	if err != nil {
 		t.Error(err)
 	}

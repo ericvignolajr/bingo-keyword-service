@@ -6,6 +6,7 @@ import (
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/domain"
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/stores/inmemory"
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/usecases"
+	"github.com/google/go-cmp/cmp"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -37,17 +38,24 @@ func TestReadSubjects(t *testing.T) {
 		UserStore: &userStore,
 	}
 
-	res := readSubjects.Exec(uid)
-	if res.Err != nil {
-		t.Error(res.Err.Error())
+	res, err := readSubjects.Exec(uid, nil)
+	if err != nil {
+		t.Error(err)
+	}
+	res, err = readSubjects.Exec(uid, nil)
+	if err != nil {
+		t.Error(err)
 	}
 
-	expected := usecases.ReadSubjectsResponse{
-		[]usecases.SubjectOutput{
-			{s1.Id, s1.Name},
-			{s2.Id, s2.Name},
-		},
-		nil,
+	expected := []domain.Subject{
+		{ID: s1.ID, Name: s1.Name, UserID: uid},
+		{ID: s2.ID, Name: s2.Name, UserID: uid},
 	}
-	assert.Equal(t, expected, res)
+
+	isEqual := cmp.Equal(expected, res)
+	if isEqual != true {
+		diff := cmp.Diff(expected, res)
+		t.Errorf("\non TestReadSubjects%v", diff)
+	}
+	assert.Equal(t, true, isEqual)
 }

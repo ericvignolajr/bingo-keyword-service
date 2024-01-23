@@ -1,7 +1,6 @@
 package sessions
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -13,7 +12,6 @@ type ClerkAuthenticator struct {
 }
 
 func NewClerkAuthenticator() *ClerkAuthenticator {
-	fmt.Println(os.Getenv("CLERK_SECRET"))
 	client, err := clerk.NewClient(os.Getenv("CLERK_SECRET"))
 	if err != nil {
 		log.Fatal(err)

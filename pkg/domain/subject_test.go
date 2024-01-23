@@ -10,7 +10,7 @@ import (
 
 func TestNewSubject(t *testing.T) {
 	expected := &domain.Subject{
-		Id:   uuid.New(),
+		ID:   uuid.New(),
 		Name: "Science",
 	}
 

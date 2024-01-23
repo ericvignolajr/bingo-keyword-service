@@ -48,7 +48,7 @@ func (s *SubjectStore) ReadByName(UserId uuid.UUID, SubjectName string) (*domain
 func (s *SubjectStore) ReadByID(subjectID uuid.UUID) (*domain.Subject, error) {
 	for _, user := range s.Store {
 		for _, subject := range user {
-			if subject.Id == subjectID {
+			if subject.ID == subjectID {
 				return subject, nil
 			}
 		}
@@ -75,7 +75,7 @@ func (s *SubjectStore) Create(UserId uuid.UUID, Subject *domain.Subject) (*domai
 }
 
 func (s *SubjectStore) Update(Subject *domain.Subject) (*domain.Subject, error) {
-	subjectToUpdate, _ := s.ReadByID(Subject.Id)
+	subjectToUpdate, _ := s.ReadByID(Subject.ID)
 	if subjectToUpdate == nil {
 		newSubject, err := s.Create(Subject.UserID, Subject)
 		if err != nil {
@@ -89,7 +89,7 @@ func (s *SubjectStore) Update(Subject *domain.Subject) (*domain.Subject, error) 
 		return nil, errors.New(fmt.Sprintf("could not find record in in-memory subject store for user with id: %s", Subject.UserID.String()))
 	}
 	for i, v := range subjects {
-		if v.Id == Subject.Id {
+		if v.ID == Subject.ID {
 			subjects[i] = Subject
 		}
 	}
@@ -104,7 +104,7 @@ func (s *SubjectStore) Delete(userID uuid.UUID, subjectID uuid.UUID) error {
 		found bool // found is true if the index was set
 	}
 	for idx, subject := range subjectSlice {
-		if subject.Id == subjectID {
+		if subject.ID == subjectID {
 			nullIndex = struct {
 				index int
 				found bool
