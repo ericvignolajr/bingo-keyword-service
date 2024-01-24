@@ -37,7 +37,7 @@ func (s *SQLUserStore) ReadById(userID uuid.UUID) (*domain.User, error) {
 	user := domain.User{
 		ID: userID,
 	}
-	err := s.DB.Preload("Subjects").Preload("Subjects.Units").First(&user, user.ID).Error
+	err := s.DB.Preload("Subjects.Units.Keywords").First(&user, user.ID).Error
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +49,7 @@ func (s *SQLUserStore) ReadByEmail(email string) (*domain.User, error) {
 		Email: email,
 	}
 
-	err := s.DB.Where("email = ?", user.Email).Preload("Subjects").First(&user).Error
+	err := s.DB.Where("email = ?", user.Email).Preload("Subjects.Units.Keywords").First(&user).Error
 	if err != nil {
 		return nil, err
 	}

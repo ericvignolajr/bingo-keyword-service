@@ -96,7 +96,7 @@ func TestFindSubject(t *testing.T) {
 	subject, _ := NewSubject("science", user.ID)
 	user.AddSubject(*subject)
 
-	actual, _ := user.FindSubject(subject.Id)
+	actual, _ := user.FindSubject(subject.ID)
 
 	assert.Equal(t, subject, actual)
 }

@@ -13,7 +13,7 @@ var ErrSubjectNameEmpty = errors.New("subject name is empty, cannot create subje
 var ErrDuplicateUnit = errors.New("unit names must be unique within a subject")
 
 type Subject struct {
-	Id     uuid.UUID `gorm:"primaryKey"`
+	ID     uuid.UUID `gorm:"primaryKey"`
 	Name   string
 	Units  []*Unit
 	UserID uuid.UUID
@@ -25,7 +25,7 @@ func NewSubject(name string, ownerID uuid.UUID) (*Subject, error) {
 	}
 	capitalizedName := strings.ToUpper(string(name[0])) + name[1:]
 	return &Subject{
-		Id:     uuid.New(),
+		ID:     uuid.New(),
 		Name:   capitalizedName,
 		Units:  nil,
 		UserID: ownerID,
@@ -56,4 +56,24 @@ func (s *Subject) IsDuplicateUnit(u Unit) bool {
 	}
 
 	return false
+}
+
+func (s *Subject) Equal(other *Subject) bool {
+	if s.ID != other.ID {
+		return false
+	}
+
+	if s.UserID != other.UserID {
+		return false
+	}
+
+	if s.Name != other.Name {
+		return false
+	}
+
+	if len(s.Units) != len(other.Units) {
+		return false
+	}
+
+	return true
 }

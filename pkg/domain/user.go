@@ -47,7 +47,7 @@ func (u *User) AddSubject(s Subject) (*Subject, error) {
 
 func (u *User) FindSubject(sID uuid.UUID) (*Subject, error) {
 	for i, v := range u.Subjects {
-		if v.Id == sID {
+		if v.ID == sID {
 			return u.Subjects[i], nil
 		}
 	}
@@ -72,7 +72,7 @@ func (u *User) DeleteSubject(subjectID uuid.UUID) error {
 		found bool // found is true if the index was set
 	}
 	for idx, subject := range subjectSlice {
-		if subject.Id == subjectID {
+		if subject.ID == subjectID {
 			nullIndex = struct {
 				index int
 				found bool

@@ -43,5 +43,5 @@ func TestReadByName(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t, subjectToAdd.Id, subjectToRead.Id)
+	assert.Equal(t, subjectToAdd.ID, subjectToRead.ID)
 }

@@ -5,71 +5,41 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/ericvignolajr/bingo-keyword-service/pkg/domain"
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/stores"
 	"github.com/google/uuid"
 )
-
-type ReadSubjectsRequest struct {
-	UserID uuid.UUID
-}
-
-type SubjectOutput struct {
-	ID   uuid.UUID
-	Name string
-}
-type ReadSubjectsResponse struct {
-	Subjects []SubjectOutput
-	Err      error
-}
-
-func ReadSubjectsFoo(req ReadSubjectsRequest, subjectStore stores.Subject) ReadSubjectsResponse {
-	subjects, err := subjectStore.Read(req.UserID)
-	if err != nil {
-		return ReadSubjectsResponse{
-			nil,
-			err,
-		}
-	}
-
-	subjectOutput := make([]SubjectOutput, len(subjects))
-	for i, v := range subjects {
-		subjectOutput[i] = SubjectOutput{v.Id, v.Name}
-	}
-
-	sort.Slice(subjectOutput, func(i, j int) bool {
-		return strings.ToLower(subjectOutput[i].Name) < strings.ToLower(subjectOutput[j].Name)
-	})
-
-	return ReadSubjectsResponse{
-		subjectOutput,
-		nil,
-	}
-}
 
 type ReadSubjects struct {
 	UserStore stores.User
 }
 
-func (r *ReadSubjects) Exec(userID uuid.UUID) ReadSubjectsResponse {
+func (r *ReadSubjects) Exec(userID uuid.UUID, subjectID *uuid.UUID) ([]domain.Subject, error) {
 	user, err := r.UserStore.ReadById(userID)
 	if err != nil {
-		return ReadSubjectsResponse{
-			nil,
-			fmt.Errorf("in readSubjects: %w", err),
-		}
+		return nil, fmt.Errorf("in readSubjects: %w", err)
+		return nil, fmt.Errorf("in readSubjects: %w", err)
 	}
 
-	subjectOutput := make([]SubjectOutput, len(user.Subjects))
-	for i, v := range user.Subjects {
-		subjectOutput[i] = SubjectOutput{v.Id, v.Name}
+	subjectOutput := make([]domain.Subject, 0, len(user.Subjects))
+	if subjectID != nil {
+		for _, v := range user.Subjects {
+			if v.ID == *subjectID {
+				// there should only be one subject with id matching subjectID
+				subjectOutput = append(subjectOutput, *v)
+				break
+			}
+		}
+	} else {
+		for _, v := range user.Subjects {
+			subjectOutput = append(subjectOutput, *v)
+		}
 	}
 
 	sort.Slice(subjectOutput, func(i, j int) bool {
 		return strings.ToLower(subjectOutput[i].Name) < strings.ToLower(subjectOutput[j].Name)
 	})
 
-	return ReadSubjectsResponse{
-		subjectOutput,
-		nil,
-	}
+	return subjectOutput, nil
+	return subjectOutput, nil
 }

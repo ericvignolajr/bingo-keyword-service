@@ -35,7 +35,7 @@ func TestDeleteSubject(t *testing.T) {
 		t.Error(err)
 	}
 
-	deleteSubject.Exec(user.ID, subject1.Id)
+	deleteSubject.Exec(user.ID, subject1.ID)
 	expected := []*domain.Subject{subject2}
 
 	assert.Equal(t, expected, updatedUser.Subjects)

@@ -82,18 +82,18 @@ func NewServer() chi.Router {
 				return
 			}
 
-			subjects := readSubjects.Exec(u.ID)
-			if subjects.Err != nil {
+			subjects, err := readSubjects.Exec(u.ID, nil)
+			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
 
 			data := struct {
 				User     domain.User
-				Subjects []usecases.SubjectOutput
+				Subjects []domain.Subject
 			}{
 				User:     *u,
-				Subjects: subjects.Subjects,
+				Subjects: subjects,
 			}
 
 			res, _ := template.ParseFiles(viewsPath+"/base.tmpl", viewsPath+"/user.tmpl")
@@ -162,7 +162,7 @@ func NewServer() chi.Router {
 				return
 			}
 
-			s, err := readSubject.ReadSubjectByID(u.ID, subjectID)
+			s, err := readSubjects.Exec(u.ID, &subjectID)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				w.Write([]byte("We've hit an issue, please retry your request"))
@@ -170,12 +170,12 @@ func NewServer() chi.Router {
 				return
 			}
 
-			if s.UserID != u.ID {
+			if len(s) > 0 && s[0].UserID != u.ID {
 				w.WriteHeader(http.StatusUnauthorized)
 				w.Write([]byte("Unauthorized"))
 				fmt.Println("Subject owner ID does not match ID of current user")
 				fmt.Printf("UserID: %s\n", u.ID)
-				fmt.Printf("Subject Owner ID: %s\n", s.UserID)
+				fmt.Printf("Subject Owner ID: %s\n", s[0].UserID)
 				return
 			}
 
@@ -185,8 +185,8 @@ func NewServer() chi.Router {
 				Units   []*domain.Unit
 			}{
 				ID:      subjectID,
-				Subject: s.Name,
-				Units:   s.Units,
+				Subject: s[0].Name,
+				Units:   s[0].Units,
 			}
 			tmpl, _ := template.ParseFiles(viewsPath + "/subject.tmpl")
 			tmpl.Execute(w, tmplData)
@@ -292,7 +292,7 @@ func NewServer() chi.Router {
 					Units   []*domain.Unit
 				}{
 					Subject: subject.Name,
-					ID:      subject.Id,
+					ID:      subject.ID,
 					Units:   subject.Units,
 				}
 
