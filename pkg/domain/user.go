@@ -18,6 +18,7 @@ type User struct {
 	Email       string
 	Password    string
 	Subjects    []*Subject
+	subjectsMap map[uuid.UUID]int `gorm:"-:all"` // tell gorm to ignore this field
 }
 
 func NewUser(email, password string) (*User, error) {
@@ -32,6 +33,7 @@ func NewUser(email, password string) (*User, error) {
 		ExternalIDs: nil,
 		Password:    password,
 		Subjects:    nil,
+		subjectsMap: make(map[uuid.UUID]int),
 	}, nil
 }
 
@@ -42,14 +44,22 @@ func (u *User) AddSubject(s Subject) (*Subject, error) {
 	}
 
 	u.Subjects = append(u.Subjects, &s)
+	u.subjectsMap[s.ID] = len(u.Subjects) - 1
 	return &s, nil
 }
 
 func (u *User) FindSubject(sID uuid.UUID) (*Subject, error) {
-	for i, v := range u.Subjects {
-		if v.ID == sID {
-			return u.Subjects[i], nil
+	subjectIdx, ok := u.subjectsMap[sID]
+	if !ok {
+		return nil, fmt.Errorf("%s, subjectID: %s", ErrSubjectDoesNotExist, sID)
+	}
+
+	if subjectIdx >= 0 && subjectIdx < len(u.Subjects) {
+		if u.Subjects[subjectIdx].ID == sID {
+			return u.Subjects[subjectIdx], nil
 		}
+	} else {
+		return nil, fmt.Errorf("tried to index subjects slice with index %d, out of range, check subjectsMap", subjectIdx)
 	}
 
 	return nil, fmt.Errorf("%s, subjectID: %s", ErrSubjectDoesNotExist, sID)
@@ -66,31 +76,21 @@ func (u *User) FindSubjectByName(subjectName string) (*Subject, error) {
 }
 
 func (u *User) DeleteSubject(subjectID uuid.UUID) error {
-	var subjectSlice = u.Subjects
-	var nullIndex struct {
-		index int
-		found bool // found is true if the index was set
-	}
-	for idx, subject := range subjectSlice {
-		if subject.ID == subjectID {
-			nullIndex = struct {
-				index int
-				found bool
-			}{
-				index: idx,
-				found: true,
-			}
-		}
-	}
-
-	if !nullIndex.found {
+	subjectIdx, ok := u.subjectsMap[subjectID]
+	if !ok {
 		return nil
 	}
 
-	length := len(subjectSlice)
-	subjectSlice[nullIndex.index] = subjectSlice[length-1]
-	subjectSlice[length-1] = nil
-	u.Subjects = subjectSlice[:length-1]
+	length := len(u.Subjects)
+	elementToDelete := u.Subjects[subjectIdx]
+	lastElement := u.Subjects[length-1]
+
+	u.subjectsMap[lastElement.ID] = subjectIdx
+	u.Subjects[subjectIdx] = lastElement
+	delete(u.subjectsMap, elementToDelete.ID)
+	u.Subjects[length-1] = nil
+	u.Subjects = u.Subjects[:length-1]
+
 	return nil
 }
 

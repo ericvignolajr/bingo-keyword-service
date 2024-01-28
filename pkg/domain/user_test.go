@@ -94,11 +94,19 @@ func TestFindSubject(t *testing.T) {
 	}
 
 	subject, _ := NewSubject("science", user.ID)
-	user.AddSubject(*subject)
+	_, err = user.AddSubject(*subject)
+	if err != nil {
+		t.Error(err)
+	}
 
-	actual, _ := user.FindSubject(subject.ID)
+	actual, err := user.FindSubject(subject.ID)
+	if err != nil {
+		t.Error(err)
+	}
 
-	assert.Equal(t, subject, actual)
+	if isEqual := cmp.Equal(subject, actual); isEqual != true {
+		t.Errorf("%s\n", cmp.Diff(subject, actual))
+	}
 }
 
 func TestEqual(t *testing.T) {
@@ -150,4 +158,41 @@ func TestEqual(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestDeleteSubject(t *testing.T) {
+	u, err := NewUser("foo@example.com", "fake pass")
+	if err != nil {
+		t.Error(err)
+	}
+
+	s1, err := NewSubject("science", u.ID)
+	if err != nil {
+		t.Error(err)
+	}
+	s2, err := NewSubject("math", u.ID)
+	if err != nil {
+		t.Error(err)
+	}
+
+	_, err = u.AddSubject(*s1)
+	if err != nil {
+		t.Error(err)
+	}
+	_, err = u.AddSubject(*s2)
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = u.DeleteSubject(s1.ID)
+	if err != nil {
+		t.Error(err)
+	}
+
+	assert.NotContains(t, u.Subjects, s1)
+	_, ok := u.subjectsMap[s1.ID]
+	if ok {
+		t.Errorf("the key %s for subject %s should have been removed from the user's subjects map, but the key is still present", s1.ID, s1.Name)
+	}
+
 }
