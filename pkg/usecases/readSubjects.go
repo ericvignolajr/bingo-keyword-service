@@ -18,18 +18,15 @@ func (r *ReadSubjects) Exec(userID uuid.UUID, subjectID *uuid.UUID) ([]domain.Su
 	user, err := r.UserStore.ReadById(userID)
 	if err != nil {
 		return nil, fmt.Errorf("in readSubjects: %w", err)
-		return nil, fmt.Errorf("in readSubjects: %w", err)
 	}
 
 	subjectOutput := make([]domain.Subject, 0, len(user.Subjects))
 	if subjectID != nil {
-		for _, v := range user.Subjects {
-			if v.ID == *subjectID {
-				// there should only be one subject with id matching subjectID
-				subjectOutput = append(subjectOutput, *v)
-				break
-			}
+		s, err := user.FindSubject(*subjectID)
+		if err != nil {
+			return nil, fmt.Errorf("in readSubjects: %w", err)
 		}
+		subjectOutput = append(subjectOutput, *s)
 	} else {
 		for _, v := range user.Subjects {
 			subjectOutput = append(subjectOutput, *v)
@@ -40,6 +37,5 @@ func (r *ReadSubjects) Exec(userID uuid.UUID, subjectID *uuid.UUID) ([]domain.Su
 		return strings.ToLower(subjectOutput[i].Name) < strings.ToLower(subjectOutput[j].Name)
 	})
 
-	return subjectOutput, nil
 	return subjectOutput, nil
 }
