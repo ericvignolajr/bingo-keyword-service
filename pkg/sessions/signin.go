@@ -2,11 +2,13 @@ package sessions
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/clerkinc/clerk-sdk-go/clerk"
-	"github.com/ericvignolajr/bingo-keyword-service/pkg/stores/inmemory"
+	"github.com/ericvignolajr/bingo-keyword-service/pkg/stores"
+	store "github.com/ericvignolajr/bingo-keyword-service/pkg/stores/sql"
 )
 
 const (
@@ -16,7 +18,7 @@ const (
 	User
 )
 
-var UserStore = inmemory.UserStore{}
+var UserStore, _ = store.NewSQLUserStore()
 
 func AddUserToContext(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -35,10 +37,16 @@ func AddUserToContext(h http.Handler) http.Handler {
 
 		user, err := UserStore.ReadByEmail(userEmail)
 		if err != nil {
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte("Unauthorized"))
-			fmt.Println("Failed to read by email")
-			return
+			var recordNotFoundErr *stores.RecordNotFoundError
+			if errors.As(err, &recordNotFoundErr) {
+				fmt.Printf("user with email address: %s, was not found in the database. attempting to create new user\n", userEmail)
+			} else {
+				fmt.Printf("unexpected fatal error when trying to retrieve user with email address: %s\n", userEmail)
+				fmt.Print(err)
+				w.WriteHeader(http.StatusUnauthorized)
+				w.Write([]byte("Unauthorized"))
+				return
+			}
 		}
 		if user == nil {
 			uID, err := UserStore.Create(userEmail, "")

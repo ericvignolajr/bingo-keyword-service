@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 const (
@@ -105,9 +106,13 @@ func (u *User) IsDuplicateSubject(s Subject) bool {
 }
 
 func (u *User) Equal(other *User) bool {
-	if other == nil {
+	if u == nil || other == nil {
+		if u == nil && other == nil {
+			return true
+		}
 		return false
 	}
+
 	if u.ID != other.ID {
 		return false
 	}
@@ -123,4 +128,16 @@ func (u *User) Equal(other *User) bool {
 		}
 	}
 	return true
+}
+
+func (u *User) AfterFind(tx *gorm.DB) error {
+	if u.subjectsMap == nil {
+		u.subjectsMap = make(map[uuid.UUID]int)
+	}
+
+	for i, v := range u.Subjects {
+		u.subjectsMap[v.ID] = i
+	}
+
+	return nil
 }

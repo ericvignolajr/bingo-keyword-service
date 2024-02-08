@@ -1,12 +1,15 @@
 package sql_test
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/domain"
+	"github.com/ericvignolajr/bingo-keyword-service/pkg/stores"
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/stores/sql"
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -22,6 +25,40 @@ func TestReadById(t *testing.T) {
 	subj.AddUnit(*unit)
 	user.AddSubject(*subj)
 	uStore.DB.Create(user)
+
+	cases := []struct {
+		name     string
+		id       uuid.UUID
+		expected *domain.User
+		err      error
+	}{
+		{"user found", user.ID, user, nil},
+		{"user not found", uuid.Nil, nil, &stores.RecordNotFoundError{}},
+	}
+
+	for _, v := range cases {
+		t.Run(v.name, func(t *testing.T) {
+			got, err := uStore.ReadById(v.id)
+			if cmp.Equal(v.expected, got) == false {
+				cmp.Diff(v.expected, got)
+				t.Errorf("expected %v, got %v", v.expected, got)
+			}
+
+			switch err.(type) {
+			case *stores.RecordNotFoundError:
+				var recordNotFoundErr *stores.RecordNotFoundError
+				if errors.As(v.err, &recordNotFoundErr) == false {
+					t.Errorf("expected error %T got error %T", v.err, err)
+				}
+			case nil:
+				if v.err != nil {
+					t.Errorf("expected error %T, got nil error", v.err)
+				}
+			default:
+				t.Errorf("unexpected error %T", err)
+			}
+		})
+	}
 
 	userFromDB, err := uStore.ReadById(user.ID)
 	if err != nil {
@@ -41,6 +78,40 @@ func TestReadByEmail(t *testing.T) {
 	userEmail := "test@example.com"
 	user, _ := domain.NewUser(userEmail, "foobaz")
 	uStore.DB.Create(user)
+
+	cases := []struct {
+		name     string
+		email    string
+		expected *domain.User
+		err      error
+	}{
+		{"user found", userEmail, user, nil},
+		{"user not found", "doesnotexist@test.com.invalid", nil, &stores.RecordNotFoundError{}},
+	}
+
+	for _, v := range cases {
+		t.Run(v.name, func(t *testing.T) {
+			got, err := uStore.ReadByEmail(v.email)
+			if cmp.Equal(got, v.expected) == false {
+				fmt.Println(cmp.Diff(got, v.expected))
+				t.Errorf("expected %v, got %v", v.expected, got)
+			}
+
+			switch err.(type) {
+			case *stores.RecordNotFoundError:
+				var recordNotFoundErr *stores.RecordNotFoundError
+				if errors.As(v.err, &recordNotFoundErr) == false {
+					t.Errorf("expected error %T got error %T", v.err, err)
+				}
+			case nil:
+				if v.err != nil {
+					t.Errorf("expected error %T, got nil error", v.err)
+				}
+			default:
+				t.Errorf("unexpected error %T", err)
+			}
+		})
+	}
 
 	userFromDBByEmail, err := uStore.ReadByEmail(userEmail)
 	if err != nil {
