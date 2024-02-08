@@ -2,10 +2,11 @@ package sql
 
 import (
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/domain"
+	"github.com/ericvignolajr/bingo-keyword-service/pkg/stores"
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
 type SQLUserStore struct {
@@ -13,9 +14,7 @@ type SQLUserStore struct {
 }
 
 func NewSQLUserStore() (*SQLUserStore, error) {
-	db, err := gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
-	})
+	db, err := gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
 	if err != nil {
 		return nil, err
 	}
@@ -39,6 +38,9 @@ func (s *SQLUserStore) ReadById(userID uuid.UUID) (*domain.User, error) {
 	}
 	err := s.DB.Preload("Subjects.Units.Keywords").First(&user, user.ID).Error
 	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, &stores.RecordNotFoundError{Err: err}
+		}
 		return nil, err
 	}
 	return &user, nil
@@ -51,6 +53,9 @@ func (s *SQLUserStore) ReadByEmail(email string) (*domain.User, error) {
 
 	err := s.DB.Where("email = ?", user.Email).Preload("Subjects.Units.Keywords").First(&user).Error
 	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, &stores.RecordNotFoundError{Err: err}
+		}
 		return nil, err
 	}
 
@@ -63,4 +68,26 @@ func (s *SQLUserStore) Save(User *domain.User) (*domain.User, error) {
 	}
 
 	return User, nil
+}
+
+func (s *SQLUserStore) Create(email string, password string) (uuid.UUID, error) {
+	hashedP, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	user, err := domain.NewUser(email, string(hashedP))
+	if err != nil {
+		return uuid.Nil, err
+	}
+
+	_, err = s.Save(user)
+	if err != nil {
+		return uuid.Nil, err
+	}
+	return user.ID, nil
+}
+
+func (s *SQLUserStore) CreateAccount(email string) error {
+	_, err := s.Create(email, "")
+	if err != nil {
+		return err
+	}
+	return nil
 }

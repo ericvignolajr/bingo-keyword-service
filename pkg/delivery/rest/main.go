@@ -37,27 +37,27 @@ func NewServer() chi.Router {
 	subjectStore := inmemory.NewSubjectStore()
 
 	createSubject := usecases.CreateSubject{
-		UserStore:    &sessions.UserStore,
+		UserStore:    sessions.UserStore,
 		SubjectStore: subjectStore,
 	}
 
 	readSubject := usecases.ReadSubjectByID{
-		UserStore:    &sessions.UserStore,
+		UserStore:    sessions.UserStore,
 		SubjectStore: subjectStore,
 	}
 
 	readSubjects := usecases.ReadSubjects{
-		UserStore: &sessions.UserStore,
+		UserStore: sessions.UserStore,
 	}
 
 	deleteSubject := usecases.DeleteSubject{
 		SubjectStore: subjectStore,
-		UserStore:    &sessions.UserStore,
+		UserStore:    sessions.UserStore,
 	}
 
 	createUnit := usecases.CreateUnit{
 		SubjectStore: subjectStore,
-		UserStore:    &sessions.UserStore,
+		UserStore:    sessions.UserStore,
 	}
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
