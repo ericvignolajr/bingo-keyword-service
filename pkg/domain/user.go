@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"errors"
 	"fmt"
 	"net/mail"
 	"strings"
@@ -9,8 +10,8 @@ import (
 	"gorm.io/gorm"
 )
 
-const (
-	ErrSubjectDoesNotExist = "subject does not exist"
+var (
+	ErrSubjectDoesNotExist = errors.New("subject does not exist")
 )
 
 type User struct {
@@ -52,7 +53,7 @@ func (u *User) AddSubject(s Subject) (*Subject, error) {
 func (u *User) FindSubject(sID uuid.UUID) (*Subject, error) {
 	subjectIdx, ok := u.subjectsMap[sID]
 	if !ok {
-		return nil, fmt.Errorf("%s, subjectID: %s", ErrSubjectDoesNotExist, sID)
+		return nil, fmt.Errorf("%w, subjectID: %s", ErrSubjectDoesNotExist, sID)
 	}
 
 	if subjectIdx >= 0 && subjectIdx < len(u.Subjects) {
@@ -63,7 +64,7 @@ func (u *User) FindSubject(sID uuid.UUID) (*Subject, error) {
 		return nil, fmt.Errorf("tried to index subjects slice with index %d, out of range, check subjectsMap", subjectIdx)
 	}
 
-	return nil, fmt.Errorf("%s, subjectID: %s", ErrSubjectDoesNotExist, sID)
+	return nil, fmt.Errorf("%w, subjectID: %s", ErrSubjectDoesNotExist, sID)
 }
 
 func (u *User) FindSubjectByName(subjectName string) (*Subject, error) {

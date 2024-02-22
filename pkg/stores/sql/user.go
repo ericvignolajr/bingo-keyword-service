@@ -5,7 +5,6 @@ import (
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/stores"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
@@ -14,21 +13,6 @@ type SQLUserStore struct {
 }
 
 func NewSQLUserStore() (*SQLUserStore, error) {
-	db, err := gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
-	if err != nil {
-		return nil, err
-	}
-
-	if err != nil {
-		return nil, err
-	}
-	db.Migrator().AutoMigrate(
-		domain.User{},
-		domain.Subject{},
-		domain.Unit{},
-		domain.Translation{},
-		domain.Keyword{},
-	)
 	return &SQLUserStore{DB: db}, nil
 }
 

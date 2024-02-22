@@ -2,6 +2,7 @@ package domain
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -35,6 +36,16 @@ func (u *Unit) AddKeyword(k Keyword) (*Keyword, error) {
 	return &k, nil
 }
 
+func (u *Unit) FindKeyword(keywordID uuid.UUID) (*Keyword, error) {
+	for _, v := range u.Keywords {
+		if v.Id == keywordID {
+			return v, nil
+		}
+	}
+
+	return nil, fmt.Errorf("keyword with ID: %s could not be found in unit: %s", keywordID, u.Name)
+}
+
 func (u *Unit) IsDuplicateKeyword(k Keyword) bool {
 	for _, v := range u.Keywords {
 		if v.Name == k.Name {
@@ -50,7 +61,7 @@ func (u *Unit) Equal(other *Unit) bool {
 		return false
 	}
 
-	if u.Name != other.Name {
+	if strings.ToLower(u.Name) != strings.ToLower(other.Name) {
 		return false
 	}
 
