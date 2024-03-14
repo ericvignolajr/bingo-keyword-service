@@ -23,7 +23,7 @@ func TestReadSubject(t *testing.T) {
 	}
 
 	subject, _ := domain.NewSubject("Science", user.ID)
-	user.AddSubject(*subject)
+	user.AddSubject(subject)
 	userStore.Save(user)
 
 	readSubject := usecases.ReadSubject{

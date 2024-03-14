@@ -12,7 +12,7 @@ import (
 	"github.com/clerkinc/clerk-sdk-go/clerk"
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/domain"
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/sessions"
-	"github.com/ericvignolajr/bingo-keyword-service/pkg/stores/inmemory"
+	"github.com/ericvignolajr/bingo-keyword-service/pkg/stores/sql"
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/usecases"
 	"github.com/google/uuid"
 
@@ -34,7 +34,7 @@ func NewServer() chi.Router {
 		panic(err)
 	}
 	viewsPath := filepath.Join(wd, "/pkg/delivery/rest/views")
-	subjectStore := inmemory.NewSubjectStore()
+	subjectStore, _ := sql.NewSQLSubjectStore()
 
 	createSubject := usecases.CreateSubject{
 		UserStore:    sessions.UserStore,

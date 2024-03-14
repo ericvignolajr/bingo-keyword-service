@@ -24,7 +24,7 @@ func (c *CreateSubject) Exec(name string, userID uuid.UUID) (*domain.Subject, er
 		return nil, fmt.Errorf("in createSubject: %w", err)
 	}
 
-	_, err = user.AddSubject(*subject)
+	err = user.AddSubject(subject)
 	if err != nil {
 		return nil, fmt.Errorf("in createSubject: %w", err)
 	}

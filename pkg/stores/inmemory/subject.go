@@ -74,7 +74,7 @@ func (s *SubjectStore) Create(UserId uuid.UUID, Subject *domain.Subject) (*domai
 	return Subject, nil
 }
 
-func (s *SubjectStore) Update(Subject *domain.Subject) (*domain.Subject, error) {
+func (s *SubjectStore) Save(Subject *domain.Subject) (*domain.Subject, error) {
 	subjectToUpdate, _ := s.ReadByID(Subject.ID)
 	if subjectToUpdate == nil {
 		newSubject, err := s.Create(Subject.UserID, Subject)

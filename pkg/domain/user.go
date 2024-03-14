@@ -39,15 +39,15 @@ func NewUser(email, password string) (*User, error) {
 	}, nil
 }
 
-func (u *User) AddSubject(s Subject) (*Subject, error) {
-	isDuplicate := u.IsDuplicateSubject(s)
+func (u *User) AddSubject(s *Subject) error {
+	isDuplicate := u.IsDuplicateSubject(*s)
 	if isDuplicate {
-		return nil, fmt.Errorf("user %s already has subject %s", u.Email, s.Name)
+		return fmt.Errorf("user %s already has subject %s", u.Email, s.Name)
 	}
 
-	u.Subjects = append(u.Subjects, &s)
+	u.Subjects = append(u.Subjects, s)
 	u.subjectsMap[s.ID] = len(u.Subjects) - 1
-	return &s, nil
+	return nil
 }
 
 func (u *User) FindSubject(sID uuid.UUID) (*Subject, error) {

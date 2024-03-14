@@ -9,8 +9,10 @@ import (
 	"github.com/google/uuid"
 )
 
-var ErrSubjectNameEmpty = errors.New("subject name is empty, cannot create subject")
-var ErrDuplicateUnit = errors.New("unit names must be unique within a subject")
+var (
+	ErrSubjectNameEmpty = errors.New("subject name is empty, cannot create subject")
+	ErrDuplicateUnit    = errors.New("unit names must be unique within a subject")
+)
 
 type Subject struct {
 	ID     uuid.UUID `gorm:"primaryKey"`
