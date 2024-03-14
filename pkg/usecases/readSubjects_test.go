@@ -31,8 +31,8 @@ func TestReadSubjectByID(t *testing.T) {
 		panic(err)
 	}
 
-	user.AddSubject(*s1)
-	user.AddSubject(*s2)
+	user.AddSubject(s1)
+	user.AddSubject(s2)
 
 	readSubjects := usecases.ReadSubjects{
 		UserStore: &userStore,
@@ -71,8 +71,8 @@ func TestReadSubjects(t *testing.T) {
 		panic(err)
 	}
 
-	user.AddSubject(*s1)
-	user.AddSubject(*s2)
+	user.AddSubject(s1)
+	user.AddSubject(s2)
 
 	readSubjects := usecases.ReadSubjects{
 		UserStore: &userStore,

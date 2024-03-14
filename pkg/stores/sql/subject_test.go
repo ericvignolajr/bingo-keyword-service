@@ -25,7 +25,7 @@ func TestDeleteSubject(t *testing.T) {
 	unit2.AddKeyword(*keyword2)
 	subject.AddUnit(*unit2)
 
-	user.AddSubject(*subject)
+	user.AddSubject(subject)
 
 	uStore, _ := store.NewSQLUserStore()
 	uStore.Save(user)
@@ -59,7 +59,7 @@ func TestDeleteSubject(t *testing.T) {
 		t.Errorf("expected unit from database to have keyword %v", keyword2.Name)
 	}
 
-	sStore := store.NewSQLSubjectStore()
+	sStore, _ := store.NewSQLSubjectStore()
 	sStore.Delete(user.ID, subject.ID)
 
 	userAfterDelete, _ := uStore.ReadById(user.ID)

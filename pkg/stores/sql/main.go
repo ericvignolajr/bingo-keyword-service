@@ -11,7 +11,9 @@ import (
 var db *gorm.DB
 
 func init() {
-	dbConn, err := gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
+	dbConn, err := gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{
+		FullSaveAssociations: true,
+	})
 	if err != nil {
 		log.Fatal("could not open connection to sql database")
 	}

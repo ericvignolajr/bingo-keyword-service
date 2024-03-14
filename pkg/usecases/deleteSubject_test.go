@@ -21,8 +21,8 @@ func TestDeleteSubject(t *testing.T) {
 
 	subject1, _ := domain.NewSubject("Science", user.ID)
 	subject2, _ := domain.NewSubject("Physics", user.ID)
-	user.AddSubject(*subject1)
-	user.AddSubject(*subject2)
+	user.AddSubject(subject1)
+	user.AddSubject(subject2)
 	uStore.Save(user)
 
 	deleteSubject := usecases.DeleteSubject{

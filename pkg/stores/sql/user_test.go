@@ -23,7 +23,7 @@ func TestReadById(t *testing.T) {
 	subj, _ := domain.NewSubject("science", user.ID)
 	unit, _ := domain.NewUnit("electro-magnets")
 	subj.AddUnit(*unit)
-	user.AddSubject(*subj)
+	user.AddSubject(subj)
 	uStore.DB.Create(user)
 
 	cases := []struct {
@@ -127,9 +127,13 @@ func TestReadByEmail(t *testing.T) {
 func TestSave(t *testing.T) {
 	user, _ := domain.NewUser("foo@example.com", "baz")
 	uStore, _ := sql.NewSQLUserStore()
+	_, err := uStore.Save(user)
+	if err != nil {
+		t.Error(err)
+	}
 
-	uStore.DB.Create(user)
 	userFromDB, _ := uStore.ReadById(user.ID)
+	assert.Equal(t, true, cmp.Equal(user, userFromDB))
 	newEmail := "updated@example.com"
 	userFromDB.Email = newEmail
 

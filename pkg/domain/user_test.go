@@ -40,10 +40,14 @@ func TestAddSubject(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	_, err = u.AddSubject(*s)
+
+	err = u.AddSubject(s)
 	if err != nil {
 		t.Error(err)
 	}
+
+	subjectAddedToUser, _ := u.FindSubject(s.ID)
+	assert.Equal(t, true, cmp.Equal(s, subjectAddedToUser))
 }
 
 func TestIsDuplicateSubject(t *testing.T) {
@@ -61,7 +65,7 @@ func TestIsDuplicateSubject(t *testing.T) {
 		t.Error(err)
 	}
 
-	_, err = u.AddSubject(*s1)
+	err = u.AddSubject(s1)
 	if err != nil {
 		t.Error(err)
 	}
@@ -77,7 +81,7 @@ func TestFindSubjectByName(t *testing.T) {
 	}
 
 	s, _ := NewSubject("Science", user.ID)
-	user.AddSubject(*s)
+	user.AddSubject(s)
 
 	res, err := user.FindSubjectByName(s.Name)
 	if err != nil {
@@ -94,7 +98,7 @@ func TestFindSubject(t *testing.T) {
 	}
 
 	subject, _ := NewSubject("science", user.ID)
-	_, err = user.AddSubject(*subject)
+	err = user.AddSubject(subject)
 	if err != nil {
 		t.Error(err)
 	}
@@ -175,11 +179,11 @@ func TestDeleteSubject(t *testing.T) {
 		t.Error(err)
 	}
 
-	_, err = u.AddSubject(*s1)
+	err = u.AddSubject(s1)
 	if err != nil {
 		t.Error(err)
 	}
-	_, err = u.AddSubject(*s2)
+	err = u.AddSubject(s2)
 	if err != nil {
 		t.Error(err)
 	}

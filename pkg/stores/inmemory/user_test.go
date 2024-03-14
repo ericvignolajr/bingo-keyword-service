@@ -37,7 +37,7 @@ func TestSave(t *testing.T) {
 
 	assert.NotContains(t, u.Subjects, newSubject)
 
-	_, err = u.AddSubject(*newSubject)
+	err = u.AddSubject(newSubject)
 	if err != nil {
 		t.Error(err)
 	}
