@@ -77,3 +77,13 @@ func (s *Subject) Equal(other *Subject) bool {
 
 	return true
 }
+
+func (s *Subject) FindUnitByID(unitID uuid.UUID) (*Unit, error) {
+	for _, v := range s.Units {
+		if v.ID == unitID {
+			return v, nil
+		}
+	}
+
+	return nil, fmt.Errorf("unit with ID %s could not be found", unitID)
+}

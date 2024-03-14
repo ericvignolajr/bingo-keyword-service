@@ -23,6 +23,7 @@ func (d *DeleteSubject) Exec(userID uuid.UUID, subjectID uuid.UUID) error {
 		return fmt.Errorf("in deleteSubject: %w", err)
 	}
 
-	d.UserStore.Save(user)
+	d.SubjectStore.Delete(userID, subjectID)
+	// d.UserStore.Save(user)
 	return nil
 }
