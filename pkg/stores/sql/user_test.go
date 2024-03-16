@@ -22,7 +22,7 @@ func TestReadById(t *testing.T) {
 	user, _ := domain.NewUser("foo@example.com", "foobar")
 	subj, _ := domain.NewSubject("science", user.ID)
 	unit, _ := domain.NewUnit("electro-magnets")
-	subj.AddUnit(*unit)
+	subj.AddUnit(unit)
 	user.AddSubject(subj)
 	uStore.DB.Create(user)
 

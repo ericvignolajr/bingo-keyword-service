@@ -17,13 +17,13 @@ func TestDeleteSubject(t *testing.T) {
 	unit.SubjectID = subject.ID
 	keyword, _ := domain.NewKeyword("tesla coil", "a tesla coil")
 	unit.AddKeyword(*keyword)
-	subject.AddUnit(*unit)
+	subject.AddUnit(unit)
 
 	unit2, _ := domain.NewUnit("geology")
 	unit2.SubjectID = subject.ID
 	keyword2, _ := domain.NewKeyword("rock", "a rock")
 	unit2.AddKeyword(*keyword2)
-	subject.AddUnit(*unit2)
+	subject.AddUnit(unit2)
 
 	user.AddSubject(subject)
 

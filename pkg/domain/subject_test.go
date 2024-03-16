@@ -40,12 +40,12 @@ func TestAddUnit(t *testing.T) {
 		t.Error(err)
 	}
 
-	newU, err := s.AddUnit(*u)
+	err = s.AddUnit(u)
 	if err != nil {
 		t.Error(err)
 	}
 
-	assert.Equal(t, u, newU)
+	assert.Contains(t, s.Units, u)
 
 }
 
@@ -63,7 +63,7 @@ func TestIsDuplicateUnit(t *testing.T) {
 		t.Error(err)
 	}
 
-	u2, err = s.AddUnit(*u1)
+	err = s.AddUnit(u1)
 	if err != nil {
 		t.Error(err)
 	}
