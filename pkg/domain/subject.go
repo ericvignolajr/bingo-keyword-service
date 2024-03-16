@@ -34,20 +34,20 @@ func NewSubject(name string, ownerID uuid.UUID) (*Subject, error) {
 	}, nil
 }
 
-func (s *Subject) AddUnit(u Unit) (*Unit, error) {
-	isDuplicate := s.IsDuplicateUnit(u)
+func (s *Subject) AddUnit(u *Unit) error {
+	isDuplicate := s.IsDuplicateUnit(*u)
 	if isDuplicate {
-		return nil, fmt.Errorf("%w, subject %s already contains unit %s", ErrDuplicateUnit, s.Name, u.Name)
+		return fmt.Errorf("%w, subject %s already contains unit %s", ErrDuplicateUnit, s.Name, u.Name)
 	}
 
 	capitalizedName := strings.ToUpper(string(u.Name[0])) + u.Name[1:]
 	u.Name = capitalizedName
 
-	s.Units = append(s.Units, &u)
+	s.Units = append(s.Units, u)
 	sort.SliceStable(s.Units, func(i, j int) bool {
 		return strings.ToLower(s.Units[i].Name) < strings.ToLower(s.Units[j].Name)
 	})
-	return &u, nil
+	return nil
 }
 
 func (s *Subject) IsDuplicateUnit(u Unit) bool {

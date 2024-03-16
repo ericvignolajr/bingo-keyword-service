@@ -29,7 +29,7 @@ func (c *CreateUnit) Exec(name string, userID uuid.UUID, subjectID uuid.UUID) (*
 		return nil, fmt.Errorf("in createUnit: %w", err)
 	}
 
-	_, err = s.AddUnit(*u)
+	err = s.AddUnit(u)
 	if err != nil {
 		return nil, fmt.Errorf("in createUnit: %w", err)
 	}
