@@ -1,6 +1,7 @@
 package domain_test
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 
@@ -33,7 +34,7 @@ func TestAddKeyword(t *testing.T) {
 	}
 
 	k1, _ := domain.NewKeyword("magnets", "defintion of a magnet")
-	_, err = u.AddKeyword(*k1)
+	err = u.AddKeyword(k1)
 	if err != nil {
 		t.Errorf("unexpected input when adding keyword to unit %s", err)
 	}
@@ -50,12 +51,12 @@ func TestAddKeyword_DuplicateKeyword(t *testing.T) {
 	k1, _ := domain.NewKeyword("magnets", "defintion of a magnet")
 	k2, _ := domain.NewKeyword("magnets", "defintion of a magnet")
 
-	_, err = u.AddKeyword(*k1)
+	err = u.AddKeyword(k1)
 	if err != nil {
 		t.Errorf("unexpected input when adding keyword to unit %s", err)
 	}
-	_, err = u.AddKeyword(*k2)
-	assert.EqualError(t, err, fmt.Sprintf("unit %s already contains keyword %s", u.Name, k2.Name))
+	err = u.AddKeyword(k2)
+	assert.Equal(t, true, errors.Is(err, domain.ErrDuplicateKeyword))
 
 }
 
@@ -67,7 +68,7 @@ func TestIsDuplicateKeyword(t *testing.T) {
 		t.Errorf("unexpected input when adding keyword to unit %s", err)
 	}
 
-	_, err = u.AddKeyword(*k1)
+	err = u.AddKeyword(k1)
 	if err != nil {
 		t.Errorf("unexpected input when adding keyword to unit %s", err)
 	}
