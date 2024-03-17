@@ -7,6 +7,7 @@
             {{block "subject-element" .}}
                 <li class="list-group-item d-flex flex-wrap">
                     <h5 class="mr-auto">{{.Name}}</h5>
+                    <button hx-get="/subject/{{.ID}}/update" hx-swap="innerHTML" hx-target="closest .list-group-item" hx-push-url="true" class="px-10 mr-2 btn btn-lg btn-outline-primary">Update</button>
                     <button hx-get="/subject/{{.ID}}/edit" hx-swap="innerHTML" hx-target=".main-content" hx-push-url="true" class="px-10 mr-2 btn btn-lg btn-outline-primary">Edit</button>
                     <button hx-delete="/subject/{{.ID}}" hx-confirm="Are you sure? Deleting a subject deletes all of its units and keywords as well. This cannot be undone." 
                     class="px-10 mr-2 btn btn-lg btn-outline-danger">Delete</button>

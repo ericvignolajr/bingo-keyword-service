@@ -12,6 +12,7 @@ import (
 
 var (
 	ErrSubjectDoesNotExist = errors.New("subject does not exist")
+	ErrSubjectIsDuplicate  = errors.New("subject names must be unique")
 )
 
 type User struct {
@@ -98,7 +99,7 @@ func (u *User) DeleteSubject(subjectID uuid.UUID) error {
 
 func (u *User) IsDuplicateSubject(s Subject) bool {
 	for _, v := range u.Subjects {
-		if v.Name == s.Name {
+		if strings.EqualFold(v.Name, s.Name) && v.ID != s.ID {
 			return true
 		}
 	}

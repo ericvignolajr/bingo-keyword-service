@@ -50,6 +50,10 @@ func NewServer() chi.Router {
 		UserStore: sessions.UserStore,
 	}
 
+	updateSubject := usecases.UpdateSubject{
+		UserStore: sessions.UserStore,
+	}
+
 	deleteSubject := usecases.DeleteSubject{
 		SubjectStore: subjectStore,
 		UserStore:    sessions.UserStore,
@@ -96,7 +100,7 @@ func NewServer() chi.Router {
 				Subjects: subjects,
 			}
 
-			res, _ := template.ParseFiles(viewsPath+"/base.tmpl", viewsPath+"/user.tmpl")
+			res, err := template.ParseFiles(viewsPath+"/base.tmpl", viewsPath+"/user.tmpl")
 			if err != nil {
 				fmt.Println(err)
 				w.WriteHeader(http.StatusInternalServerError)
@@ -190,6 +194,129 @@ func NewServer() chi.Router {
 			}
 			tmpl, _ := template.ParseFiles(viewsPath + "/subject.tmpl")
 			tmpl.Execute(w, tmplData)
+		})
+		r.Get("/{subjectID}/update", func(w http.ResponseWriter, r *http.Request) {
+			subjectID, err := uuid.Parse(chi.URLParam(r, "subjectID"))
+			if err != nil {
+				w.WriteHeader(http.StatusBadRequest)
+				w.Write([]byte("Bad Request"))
+				fmt.Println("could not parse subject ID into UUID")
+				return
+			}
+
+			ctx := r.Context()
+			u, ok := ctx.Value(sessions.User).(*domain.User)
+			if !ok {
+				w.WriteHeader(http.StatusUnauthorized)
+				w.Write([]byte("Unauthorized"))
+				fmt.Println("No user on context")
+				return
+			}
+
+			subjects, err := readSubjects.Exec(u.ID, &subjectID)
+			if err != nil {
+				if errors.Is(err, domain.ErrSubjectDoesNotExist) {
+					w.WriteHeader(http.StatusNotFound)
+					fmt.Println(err)
+					http.Redirect(w, r, "/user", http.StatusNotFound)
+					return
+				}
+
+				w.WriteHeader(http.StatusInternalServerError)
+				fmt.Println(err)
+				return
+			}
+
+			tmpl, _ := template.ParseFiles(viewsPath + "/updateSubject.tmpl")
+			tmplData := struct {
+				ID     uuid.UUID
+				Name   string
+				Errors []error
+			}{
+				ID:     subjects[0].ID,
+				Name:   subjects[0].Name,
+				Errors: []error{},
+			}
+			tmpl.Execute(w, tmplData)
+		})
+		r.Post("/{subjectID}/update", func(w http.ResponseWriter, r *http.Request) {
+			subjectID, err := uuid.Parse(chi.URLParam(r, "subjectID"))
+			if err != nil {
+				w.WriteHeader(http.StatusBadRequest)
+				w.Write([]byte("Bad Request"))
+				fmt.Println("could not parse subject ID into UUID")
+				return
+			}
+
+			ctx := r.Context()
+			u, ok := ctx.Value(sessions.User).(*domain.User)
+			if !ok {
+				w.WriteHeader(http.StatusUnauthorized)
+				w.Write([]byte("Unauthorized"))
+				fmt.Println("No user on context")
+				return
+			}
+
+			err = r.ParseForm()
+			if err != nil {
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
+			newName := r.PostFormValue("subjectName")
+
+			subjects, err := readSubjects.Exec(u.ID, &subjectID)
+			if err != nil {
+				if errors.Is(err, domain.ErrSubjectDoesNotExist) {
+					fmt.Printf("subject with id %s does not exist for user %s", subjectID, u.ID)
+					w.WriteHeader(http.StatusBadRequest)
+					return
+				}
+				w.WriteHeader(http.StatusInternalServerError)
+				fmt.Println(err)
+				return
+			}
+
+			if subjects[0].UserID != u.ID {
+				w.WriteHeader(http.StatusUnauthorized)
+				w.Write([]byte("Unauthorized"))
+				fmt.Println("Subject owner ID does not match ID of current user")
+				fmt.Printf("UserID: %s\n", u.ID)
+				fmt.Printf("Subject Owner ID: %s\n", subjects[0].UserID)
+				return
+			}
+
+			err = updateSubject.Exec(u.ID, subjectID, newName)
+			tmpl, _ := template.ParseFiles(viewsPath + "/updateSubject.tmpl")
+			tmplData := struct {
+				ID     uuid.UUID
+				Name   string
+				Errors []error
+			}{
+				ID:     subjects[0].ID,
+				Name:   subjects[0].Name,
+				Errors: []error{},
+			}
+			if err != nil {
+				if errors.Is(err, domain.ErrSubjectNameEmpty) {
+					w.Header().Set("HX-Retarget", "#update-subject-form")
+					tmplData.Errors = append(tmplData.Errors, domain.ErrSubjectNameEmpty)
+					tmpl.Execute(w, tmplData)
+					return
+				}
+
+				if errors.Is(err, domain.ErrSubjectIsDuplicate) {
+					w.Header().Set("HX-Retarget", "#update-subject-form")
+					tmplData.Errors = append(tmplData.Errors, domain.ErrSubjectIsDuplicate)
+					tmpl.Execute(w, tmplData)
+					return
+				}
+
+				w.WriteHeader(http.StatusBadRequest)
+				w.Write([]byte("Bad Request"))
+				fmt.Println(fmt.Errorf("in %s with http method %s: %w", r.URL.Path, r.Method, err))
+				return
+			}
+			http.Redirect(w, r, "/user", http.StatusFound)
 		})
 		r.Put("/{subjectID}", func(w http.ResponseWriter, r *http.Request) {
 			fmt.Println(chi.URLParam(r, "subjectID"))
