@@ -1,12 +1,15 @@
 package domain
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
+
+var ErrDuplicateKeyword = errors.New("keywords must be unique within a unit")
 
 type Unit struct {
 	gorm.Model
@@ -26,14 +29,14 @@ func NewUnit(name string) (*Unit, error) {
 	}, nil
 }
 
-func (u *Unit) AddKeyword(k Keyword) (*Keyword, error) {
-	isDuplicate := u.IsDuplicateKeyword(k)
+func (u *Unit) AddKeyword(k *Keyword) error {
+	isDuplicate := u.IsDuplicateKeyword(*k)
 	if isDuplicate {
-		return nil, fmt.Errorf("unit %s already contains keyword %s", u.Name, k.Name)
+		return fmt.Errorf("unit %s already contains keyword %s, %w", u.Name, k.Name, ErrDuplicateKeyword)
 	}
 
-	u.Keywords = append(u.Keywords, &k)
-	return &k, nil
+	u.Keywords = append(u.Keywords, k)
+	return nil
 }
 
 func (u *Unit) FindKeyword(keywordID uuid.UUID) (*Keyword, error) {

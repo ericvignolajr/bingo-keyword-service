@@ -82,10 +82,6 @@ func TestReadSubjects(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	res, err = readSubjects.Exec(uid, nil)
-	if err != nil {
-		t.Error(err)
-	}
 
 	expected := []domain.Subject{
 		{ID: s1.ID, Name: s1.Name, UserID: uid},
