@@ -1,0 +1,15 @@
+{{block "content" .}}
+<form id="update-subject-form" hx-post="/subject/{{.ID}}/update" hx-swap="outerHTML" hx-target="body" hx-replace-url="true">
+    {{range .Errors}}
+    <div>
+      <span class="error" style="color: red;">{{.Error}}</span>
+    </div>
+    {{end}}
+    <div>
+        <label><h5 class="mr-auto">Subject Name</h5></label>
+        <input type="text" name="subjectName" value="{{.Name}}"></input>
+        <button class="px-10 mr-2 btn btn-lg btn-outline-primary">Submit</button>
+        <button class="px-10 mr-2 btn btn-lg btn-outline-danger" hx-get="/user" hx-target="body">Cancel</button>
+    </div>
+</form>
+{{end}}

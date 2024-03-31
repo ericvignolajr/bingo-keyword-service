@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	ErrSubjectNameEmpty = errors.New("subject name is empty, cannot create subject")
+	ErrSubjectNameEmpty = errors.New("subject name cannot be empty")
 	ErrDuplicateUnit    = errors.New("unit names must be unique within a subject")
 )
 
@@ -88,4 +88,14 @@ func (s *Subject) FindUnitByID(unitID uuid.UUID) (*Unit, error) {
 	}
 
 	return nil, fmt.Errorf("unit with ID %s could not be found", unitID)
+}
+
+func (s *Subject) UpdateSubjectName(newName string) error {
+	if newName == "" {
+		return ErrSubjectNameEmpty
+	}
+
+	capitalizedName := strings.ToUpper(string(newName[0])) + newName[1:]
+	s.Name = capitalizedName
+	return nil
 }
