@@ -1,15 +1,12 @@
 package rest
 
 import (
-	"fmt"
-	"html/template"
 	"net/http"
 	"os"
 	"path/filepath"
 	"time"
 
 	"github.com/clerkinc/clerk-sdk-go/clerk"
-	"github.com/ericvignolajr/bingo-keyword-service/pkg/domain"
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/sessions"
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/stores/sql"
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/usecases"
@@ -67,46 +64,13 @@ func NewServer() chi.Router {
 	})
 	r.Get("/signin", func(w http.ResponseWriter, r *http.Request) {
 		path := filepath.Join(viewsPath + "/signin.html")
-
 		http.ServeFile(w, r, path)
 	})
 
 	r.Group(func(r chi.Router) {
 		r.Use(requireSession)
 		r.Use(sessions.AddUserToContext)
-		r.Get("/user", func(w http.ResponseWriter, r *http.Request) {
-			ctx := r.Context()
-			u, ok := ctx.Value(sessions.User).(*domain.User)
-			if !ok {
-				w.WriteHeader(http.StatusUnauthorized)
-				w.Write([]byte("Unauthorized"))
-				fmt.Println("No user on context")
-				return
-			}
-
-			subjects, err := readSubjects.Exec(u.ID, nil)
-			if err != nil {
-				w.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-
-			data := struct {
-				User     domain.User
-				Subjects []domain.Subject
-			}{
-				User:     *u,
-				Subjects: subjects,
-			}
-
-			res, err := template.ParseFiles(viewsPath+"/base.tmpl", viewsPath+"/user.tmpl")
-			if err != nil {
-				fmt.Println(err)
-				w.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-
-			res.Execute(w, data)
-		})
+		r.Get("/user", newShowHomePageHandler(readSubjects, viewsPath))
 	})
 
 	r.Route("/subject", func(r chi.Router) {
@@ -123,7 +87,7 @@ func NewServer() chi.Router {
 			r.Use(requireSession)
 			r.Use(sessions.AddUserToContext)
 			r.Get("/create", newCreateUnitFormHandler(viewsPath))
-			r.Post("/create", newCreateUnitHandler(createUnit, readSubject, viewsPath))
+			r.Post("/create", newCreateUnitHandler(createUnit, readSubject))
 		})
 
 	})
