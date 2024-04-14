@@ -9,7 +9,7 @@ import (
 )
 
 type Keyword struct {
-	Id               uuid.UUID `gorm:"primaryKey"`
+	ID               uuid.UUID `gorm:"primaryKey"`
 	Name, Definition string
 	Picture          image.Image    `gorm:"type:bytes"`
 	Translations     []*Translation `gorm:"polymorphic:Owner"`
@@ -18,7 +18,7 @@ type Keyword struct {
 
 func NewKeyword(name, defintion string) (*Keyword, error) {
 	return &Keyword{
-		Id:           uuid.New(),
+		ID:           uuid.New(),
 		Name:         name,
 		Definition:   defintion,
 		Translations: nil,

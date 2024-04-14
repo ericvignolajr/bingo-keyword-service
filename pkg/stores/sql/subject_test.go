@@ -44,7 +44,7 @@ func TestDeleteSubject(t *testing.T) {
 		t.Errorf("expected subject from database to have unit %v", unit)
 	}
 
-	keyword, err = unitFromDB.FindKeyword(keyword.Id)
+	keyword, err = unitFromDB.FindKeyword(keyword.ID)
 	if err != nil {
 		t.Errorf("expected unit from database to have keyword %v", keyword.Name)
 	}
@@ -54,7 +54,7 @@ func TestDeleteSubject(t *testing.T) {
 		t.Errorf("expected subject from database to have unit %v", unit)
 	}
 
-	keyword2, err = unitFromDB2.FindKeyword(keyword2.Id)
+	keyword2, err = unitFromDB2.FindKeyword(keyword2.ID)
 	if err != nil {
 		t.Errorf("expected unit from database to have keyword %v", keyword2.Name)
 	}
