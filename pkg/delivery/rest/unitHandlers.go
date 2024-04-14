@@ -37,7 +37,7 @@ func newCreateUnitFormHandler(viewsPath string) http.HandlerFunc {
 	}
 }
 
-func newCreateUnitHandler(createUnitUsecase usecases.CreateUnit, readSubjectUsecase usecases.ReadSubjectByID, viewsPath string) http.HandlerFunc {
+func newCreateUnitHandler(createUnitUsecase usecases.CreateUnit, readSubjectUsecase usecases.ReadSubjectByID) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		u, ok := ctx.Value(sessions.User).(*domain.User)
