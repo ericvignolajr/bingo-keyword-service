@@ -41,7 +41,7 @@ func (u *Unit) AddKeyword(k *Keyword) error {
 
 func (u *Unit) FindKeyword(keywordID uuid.UUID) (*Keyword, error) {
 	for _, v := range u.Keywords {
-		if v.Id == keywordID {
+		if v.ID == keywordID {
 			return v, nil
 		}
 	}

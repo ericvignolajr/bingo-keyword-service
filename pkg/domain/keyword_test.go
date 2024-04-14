@@ -10,7 +10,7 @@ import (
 
 func TestNewKeyword(t *testing.T) {
 	expected := &Keyword{
-		Id:           uuid.New(),
+		ID:           uuid.New(),
 		Name:         "magent",
 		Definition:   "magnet defintion",
 		Translations: nil,
