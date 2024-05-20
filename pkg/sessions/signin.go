@@ -37,7 +37,7 @@ func AddUserToContext(h http.Handler) http.Handler {
 
 		user, err := UserStore.ReadByEmail(userEmail)
 		if err != nil {
-			var recordNotFoundErr *stores.RecordNotFoundError
+			var recordNotFoundErr *stores.ErrRecordNotFound
 			if errors.As(err, &recordNotFoundErr) {
 				fmt.Printf("user with email address: %s, was not found in the database. attempting to create new user\n", userEmail)
 			} else {

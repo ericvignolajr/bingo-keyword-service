@@ -35,6 +35,8 @@ func (u *Unit) AddKeyword(k *Keyword) error {
 		return fmt.Errorf("unit %s already contains keyword %s, %w", u.Name, k.Name, ErrDuplicateKeyword)
 	}
 
+	k.UnitID = u.ID
+
 	u.Keywords = append(u.Keywords, k)
 	return nil
 }
@@ -64,7 +66,7 @@ func (u *Unit) Equal(other *Unit) bool {
 		return false
 	}
 
-	if strings.ToLower(u.Name) != strings.ToLower(other.Name) {
+	if !strings.EqualFold(u.Name, other.Name) {
 		return false
 	}
 
