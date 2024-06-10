@@ -7,12 +7,19 @@ import (
 	"time"
 
 	"github.com/clerkinc/clerk-sdk-go/clerk"
+	"github.com/ericvignolajr/bingo-keyword-service/pkg/delivery/rest/internal/templates"
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/sessions"
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/stores/sql"
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/usecases"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+)
+
+const (
+	subjectIDQueryString = "subjectID"
+	unitIDQueryString    = "unitID"
+	keywordIDQueryString = "keywordID"
 )
 
 func NewServer() chi.Router {
@@ -59,6 +66,21 @@ func NewServer() chi.Router {
 		UserStore:    sessions.UserStore,
 	}
 
+	readKeywordsByUserID := usecases.ReadKeywordsByUserID{
+		UserStore: sessions.UserStore,
+	}
+	readKeywordsBySubjectID := usecases.ReadKeywordsBySubjectID{
+		UserStore: sessions.UserStore,
+	}
+	readKeywordsByUnitID := usecases.ReadKeywordsByUnitID{
+		UserStore: sessions.UserStore,
+	}
+	readKeywordsByKeywordID := usecases.ReadKeywordsByKeywordID{
+		UserStore: sessions.UserStore,
+	}
+
+	templates := templates.NewTemplates()
+
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/user", http.StatusFound)
 	})
@@ -90,6 +112,17 @@ func NewServer() chi.Router {
 			r.Post("/create", newCreateUnitHandler(createUnit, readSubject))
 		})
 
+	})
+
+	r.Route("/keywords", func(r chi.Router) {
+		r.Use(requireSession)
+		r.Use(sessions.AddUserToContext)
+		r.Get("/", newReadKeywordsHandler(
+			readKeywordsByUserID,
+			readKeywordsBySubjectID,
+			readKeywordsByUnitID,
+			readKeywordsByKeywordID,
+			templates))
 	})
 
 	return r

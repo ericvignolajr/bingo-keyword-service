@@ -4,6 +4,7 @@ import (
 	"image"
 	_ "image/jpeg"
 	_ "image/png"
+	"strings"
 
 	"github.com/google/uuid"
 )
@@ -23,4 +24,41 @@ func NewKeyword(name, defintion string) (*Keyword, error) {
 		Definition:   defintion,
 		Translations: nil,
 	}, nil
+}
+
+func (k *Keyword) Equal(other *Keyword) bool {
+	if k == nil || other == nil {
+		if k == nil && other == nil {
+			return true
+		}
+		return false
+	}
+
+	if k.ID != other.ID {
+		return false
+	}
+
+	if k.UnitID != other.UnitID {
+		return false
+	}
+
+	if !strings.EqualFold(k.Name, other.Name) {
+		return false
+	}
+
+	if !strings.EqualFold(k.Definition, other.Definition) {
+		return false
+	}
+
+	if len(k.Translations) != len(other.Translations) {
+		return false
+	}
+
+	for i := range k.Translations {
+		if k.Translations[i] != other.Translations[i] {
+			return false
+		}
+	}
+
+	return true
 }

@@ -1,9 +1,9 @@
 package stores
 
-type RecordNotFoundError struct {
+type ErrRecordNotFound struct {
 	Err error
 }
 
-func (rnf *RecordNotFoundError) Error() string {
+func (rnf *ErrRecordNotFound) Error() string {
 	return rnf.Err.Error()
 }

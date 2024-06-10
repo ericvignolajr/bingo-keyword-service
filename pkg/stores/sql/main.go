@@ -6,6 +6,7 @@ import (
 	"github.com/ericvignolajr/bingo-keyword-service/pkg/domain"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var db *gorm.DB
@@ -13,6 +14,7 @@ var db *gorm.DB
 func init() {
 	dbConn, err := gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{
 		FullSaveAssociations: true,
+		Logger:               logger.Default.LogMode(logger.Info),
 	})
 	if err != nil {
 		log.Fatal("could not open connection to sql database")

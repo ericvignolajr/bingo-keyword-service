@@ -18,4 +18,4 @@ clean-tmp:
 
 clean-all: clean clean-tmp
 
-.PHONY: run test clean
+.PHONY: run test clean watch

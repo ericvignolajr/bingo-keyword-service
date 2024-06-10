@@ -33,7 +33,7 @@ func TestReadById(t *testing.T) {
 		err      error
 	}{
 		{"user found", user.ID, user, nil},
-		{"user not found", uuid.Nil, nil, &stores.RecordNotFoundError{}},
+		{"user not found", uuid.Nil, nil, &stores.ErrRecordNotFound{}},
 	}
 
 	for _, v := range cases {
@@ -45,8 +45,8 @@ func TestReadById(t *testing.T) {
 			}
 
 			switch err.(type) {
-			case *stores.RecordNotFoundError:
-				var recordNotFoundErr *stores.RecordNotFoundError
+			case *stores.ErrRecordNotFound:
+				var recordNotFoundErr *stores.ErrRecordNotFound
 				if errors.As(v.err, &recordNotFoundErr) == false {
 					t.Errorf("expected error %T got error %T", v.err, err)
 				}
@@ -86,7 +86,7 @@ func TestReadByEmail(t *testing.T) {
 		err      error
 	}{
 		{"user found", userEmail, user, nil},
-		{"user not found", "doesnotexist@test.com.invalid", nil, &stores.RecordNotFoundError{}},
+		{"user not found", "doesnotexist@test.com.invalid", nil, &stores.ErrRecordNotFound{}},
 	}
 
 	for _, v := range cases {
@@ -98,8 +98,8 @@ func TestReadByEmail(t *testing.T) {
 			}
 
 			switch err.(type) {
-			case *stores.RecordNotFoundError:
-				var recordNotFoundErr *stores.RecordNotFoundError
+			case *stores.ErrRecordNotFound:
+				var recordNotFoundErr *stores.ErrRecordNotFound
 				if errors.As(v.err, &recordNotFoundErr) == false {
 					t.Errorf("expected error %T got error %T", v.err, err)
 				}
