@@ -1,0 +1,15 @@
+{{block "content" .}}
+    <ul style="display: flex; flex-direction: column">
+    {{range .}}
+        {{template "keyword" .}}
+    {{end}}
+    </ul>
+{{end}}
+
+{{define "keyword"}}
+    <li style="box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2); padding: 2px 16px">
+        <h3><label>Name:</label> {{.Name}}</h3>
+        <h3><label>Definition:</label> {{.Definition}}</h3>
+        <h3><label>Unit ID:</label> {{.UnitID}}</h3>
+    </li>
+{{end}}

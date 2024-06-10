@@ -1,3 +1,4 @@
+{{block "base" .}}
 <!DOCTYPE html>
 <html lang="en" color-mode="dark">
 <head>
@@ -10,7 +11,7 @@
 </head>
 <body class="container">
     <div class="row justify-content-center">
-        <div class="main-content col-8">
+        <div class="main-content col-8" style="margin: 1%">
             {{block "content" .}}
                 placeholder
             {{end}}
@@ -41,3 +42,4 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
 </body>
 </html>
+{{end}}
